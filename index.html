@@ -10,13 +10,17 @@
     <!-- SUPABASE JS LIBRARY -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Noto+Sans+JP:wght@400;700;900&family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         /* --- GLOBAL & ANIMATION STYLES --- */
         body { background-color: #050505; color: white; font-family: 'Noto Sans JP', sans-serif; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
         .font-anime { font-family: 'Black Ops One', cursive; }
+        .font-google { font-family: 'Inter', sans-serif; }
+        .font-tech { font-family: 'Rajdhani', sans-serif; }
+        
         .bg-grid {
             background-image: linear-gradient(rgba(255, 0, 85, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 85, 0.1) 1px, transparent 1px);
             background-size: 40px 40px; position: absolute; width: 100%; height: 100%; z-index: -1;
@@ -38,8 +42,21 @@
         .btn-pay:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 0, 85, 0.9); }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 0, 85, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); } }
         .japanese-vertical { writing-mode: vertical-rl; text-orientation: upright; }
-        .reward-card { background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(5px); transition: transform 0.2s, border-color 0.2s; }
-        .reward-card:hover { transform: translateY(-5px); }
+        
+        /* New Premium Card Styles */
+        .premium-card {
+            background: linear-gradient(145deg, rgba(20, 20, 25, 0.9) 0%, rgba(5, 5, 10, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .premium-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+        .premium-card:hover { transform: translateY(-5px); }
+        
         .glow-text { text-shadow: 0 0 10px currentColor; }
         .modal-overlay { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); }
         .modal-content { background: rgba(15, 15, 25, 0.95); border: 1px solid rgba(0, 255, 255, 0.3); box-shadow: 0 0 30px rgba(0, 255, 255, 0.1); }
@@ -81,30 +98,102 @@
     <div class="flex-grow w-full flex flex-col items-center">
 
         <!-- === SECTION 1: LANDING PAGE === -->
-        <main id="landingSection" class="z-10 text-center max-w-5xl px-4 relative mt-10 md:mt-20 pb-20 transition-opacity duration-500">
+        <main id="landingSection" class="z-10 text-center max-w-6xl px-4 relative mt-10 md:mt-20 pb-20 transition-opacity duration-500">
             <h1 class="font-anime text-5xl md:text-8xl font-black mb-8 leading-tight dynamic-title">World of<br>KishanQuarks</h1>
             
-            <div class="mb-14">
-                <h2 class="font-anime text-2xl md:text-3xl text-yellow-400 mb-6 uppercase tracking-wider glow-text flex items-center justify-center gap-3">
-                    <span class="text-sm">⚡</span> Participate in Upcoming Competitions to Get These Rewards <span class="text-sm">⚡</span>
+            <div class="mb-16">
+                <!-- UPDATED TITLE TO GOOGLE PROFESSIONAL STYLE -->
+                <h2 class="font-google text-2xl md:text-3xl font-medium text-white/80 mb-10 flex items-center justify-center gap-3 tracking-tight">
+                    Compete to Unlock Exclusive Premium Rewards
                 </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-                    <div class="reward-card border border-emerald-500/30 p-5 rounded-lg hover:border-emerald-400 group">
-                        <div class="text-xs text-emerald-600 uppercase font-bold tracking-widest mb-1">AI Power</div>
-                        <div class="text-emerald-300 font-bold text-lg mb-1 group-hover:text-white">ChatGPT Plus</div>
+                
+                <!-- NEW PREMIUM CARD GRID -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+                    
+                    <!-- Card 1: ChatGPT Plus -->
+                    <div class="premium-card border border-emerald-500/20 p-6 rounded-2xl group hover:border-emerald-500 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+                        <div class="absolute -right-6 -top-6 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 rotate-12">
+                            <i class="fa-solid fa-brain text-9xl text-emerald-500"></i>
+                        </div>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                    <span class="text-[10px] font-bold tracking-[0.2em] text-emerald-500 uppercase font-tech">AI Protocol</span>
+                                </div>
+                                <h3 class="text-3xl font-anime text-white group-hover:text-emerald-400 transition-colors mb-1">ChatGPT<br>Plus</h3>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-emerald-500/10">
+                                <p class="text-xs text-emerald-200/60 font-mono flex items-center gap-2">
+                                    <i class="fa-solid fa-check"></i> Full access
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="reward-card border border-blue-500/30 p-5 rounded-lg hover:border-blue-400 group">
-                        <div class="text-xs text-blue-600 uppercase font-bold tracking-widest mb-1">Advanced Intel</div>
-                        <div class="text-blue-300 font-bold text-lg mb-1 group-hover:text-white">Google AI Ultra</div>
+
+                    <!-- Card 2: Google AI -->
+                    <div class="premium-card border border-blue-500/20 p-6 rounded-2xl group hover:border-blue-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]">
+                        <div class="absolute -right-6 -top-6 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 rotate-12">
+                            <i class="fa-brands fa-google text-9xl text-blue-500"></i>
+                        </div>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                                    <span class="text-[10px] font-bold tracking-[0.2em] text-blue-500 uppercase font-tech">Advanced Intel</span>
+                                </div>
+                                <h3 class="text-3xl font-anime text-white group-hover:text-blue-400 transition-colors mb-1">Google AI<br>Ultra</h3>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-blue-500/10">
+                                <p class="text-xs text-blue-200/60 font-mono flex items-center gap-2">
+                                    <i class="fa-solid fa-check"></i> Full access
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="reward-card border border-orange-500/30 p-5 rounded-lg hover:border-orange-400 group">
-                        <div class="text-xs text-orange-600 uppercase font-bold tracking-widest mb-1">Streaming</div>
-                        <div class="text-orange-300 font-bold text-lg mb-1 group-hover:text-white">Crunchyroll Ult.</div>
+
+                    <!-- Card 3: Crunchyroll -->
+                    <div class="premium-card border border-orange-500/20 p-6 rounded-2xl group hover:border-orange-500 hover:shadow-[0_0_30px_rgba(249,115,22,0.15)]">
+                        <div class="absolute -right-6 -top-6 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 rotate-12">
+                            <i class="fa-solid fa-dragon text-9xl text-orange-500"></i>
+                        </div>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
+                                    <span class="text-[10px] font-bold tracking-[0.2em] text-orange-500 uppercase font-tech">Streaming</span>
+                                </div>
+                                <h3 class="text-3xl font-anime text-white group-hover:text-orange-400 transition-colors mb-1">Crunchyroll<br>Ult.</h3>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-orange-500/10">
+                                <p class="text-xs text-orange-200/60 font-mono flex items-center gap-2">
+                                    <i class="fa-solid fa-check"></i> UNLIMITED ACCESS
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="reward-card border border-red-500/30 p-5 rounded-lg hover:border-red-400 group">
-                        <div class="text-xs text-red-600 uppercase font-bold tracking-widest mb-1">Media</div>
-                        <div class="text-red-300 font-bold text-lg mb-1 group-hover:text-white">YouTube Premium</div>
+
+                    <!-- Card 4: YouTube -->
+                    <div class="premium-card border border-red-500/20 p-6 rounded-2xl group hover:border-red-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)]">
+                        <div class="absolute -right-6 -top-6 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 rotate-12">
+                            <i class="fa-brands fa-youtube text-9xl text-red-500"></i>
+                        </div>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                                    <span class="text-[10px] font-bold tracking-[0.2em] text-red-500 uppercase font-tech">Media</span>
+                                </div>
+                                <h3 class="text-3xl font-anime text-white group-hover:text-red-400 transition-colors mb-1">YouTube<br>Premium</h3>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-red-500/10">
+                                <p class="text-xs text-red-200/60 font-mono flex items-center gap-2">
+                                    <i class="fa-solid fa-check"></i> AD-FREE STREAM
+                                </p>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
 
@@ -196,7 +285,7 @@
             <div class="flex justify-center gap-6">
                 <a href="privacy.html" class="text-gray-500 hover:text-cyan-400 text-xs font-bold uppercase tracking-wider transition-colors">Privacy Policy</a>
                 <a href="terms.html" class="text-gray-500 hover:text-cyan-400 text-xs font-bold uppercase tracking-wider transition-colors">Terms of Service</a>
-                <a href="#" class="text-gray-500 hover:text-cyan-400 text-xs font-bold uppercase tracking-wider transition-colors">Support</a>
+                <a href="about.html" class="text-gray-500 hover:text-cyan-400 text-xs font-bold uppercase tracking-wider transition-colors">About us</a>
             </div>
         </div>
     </footer>
