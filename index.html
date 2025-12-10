@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>World of KishanQuarks | Gaming Protocol</title>
     
-    <!-- TAILWIND CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SUPABASE JS LIBRARY -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -331,12 +327,12 @@
             <h2 class="font-anime text-2xl mb-6 text-center text-white">Sign in or Create an account</h2>
             
             <div class="space-y-4">
-                <!-- Option A: Google OAuth -->
+                <!-- Option A: Google OAuth (Simulated) -->
                 <button onclick="handleGoogleSignIn()" class="w-full bg-white text-black font-bold py-3 px-4 rounded flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors">
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
                     Sign in with Google
                 </button>
-                <p class="text-center text-xs text-gray-500">(Recommended)</p>
+                <p class="text-center text-xs text-gray-500">(Simulated for Testing)</p>
                 
                 <div class="flex items-center gap-4 my-2">
                     <div class="divider-line"></div>
@@ -373,36 +369,21 @@
     <script>
         /**
          * ------------------------------------------------------------------
-         * CONFIGURATION ZONE (REQUIRED)
+         * CONFIGURATION ZONE
          * ------------------------------------------------------------------
-         * 1. Go to your Supabase Dashboard -> Settings -> API
-         * 2. Copy the "URL" and "anon" / "public" key.
-         * 3. Paste them below.
          */
-        const SUPABASE_URL = "YOUR_SUPABASE_URL_HERE"; 
-        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
-
         const PAYMENT_LINK = ""; // Paste real payment link here (e.g. Razorpay/Stripe)
-
-        // Initialize Supabase Client
-        // Note: We check if variables are set to avoid errors if you haven't pasted them yet.
-        let supabase;
-        let demoMode = false;
-
-        if (SUPABASE_URL && SUPABASE_URL.includes("https") && !SUPABASE_URL.includes("YOUR_SUPABASE")) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } else {
-            console.warn("Supabase not configured correctly. Falling back to DEMO MODE (Local Storage).");
-            demoMode = true;
-        }
 
         /**
          * ------------------------------------------------------------------
          * STATE MANAGEMENT
          * ------------------------------------------------------------------
+         * Uses LocalStorage to simulate a database.
+         * 'kq_active_user' stores the currently logged in email.
+         * 'kq_users_db' is a JSON object storing all users and their payment status.
          */
-        let currentUser = null; // Stores Supabase user object or LocalStorage object
-        let isPaidUser = false; // Stores payment status
+        let currentUser = null; // { email: string, isPaid: boolean }
+        let usersDB = JSON.parse(localStorage.getItem('kq_users_db')) || {};
 
         const els = {
             landing: document.getElementById('landingSection'),
@@ -419,238 +400,138 @@
             lockedToast: document.getElementById('lockedToast')
         };
 
-        async function init() {
-            // Check for Payment Success Callback in URL (?payment=success)
+        function init() {
+            // Check for Payment Success Callback in URL
             const urlParams = new URLSearchParams(window.location.search);
             const isPaymentSuccess = urlParams.get('payment') === 'success';
 
-            if (demoMode) {
-                // --- DEMO MODE INIT ---
-                const storedUser = localStorage.getItem('kq_demo_user');
-                if (storedUser) {
-                    currentUser = JSON.parse(storedUser);
-                    // Check local storage payment status
-                    isPaidUser = currentUser.is_paid === true;
-                    
-                    if (isPaymentSuccess) {
-                        await handlePaymentSuccessCallback();
-                    } else {
-                        updateUI();
-                    }
+            // Check if a user is already logged in
+            const activeEmail = localStorage.getItem('kq_active_user');
+            if (activeEmail && usersDB[activeEmail]) {
+                currentUser = usersDB[activeEmail];
+                
+                if (isPaymentSuccess) {
+                    handlePaymentSuccessCallback();
                 } else {
                     updateUI();
                 }
             } else {
-                // --- REAL SUPABASE INIT ---
-                const { data: { session } } = await supabase.auth.getSession();
-                
-                if (session) {
-                    currentUser = session.user;
-                    // Check if we need to update payment status based on URL
-                    if (isPaymentSuccess) {
-                        await handlePaymentSuccessCallback();
-                    } else {
-                        // Just check existing status
-                        await checkPaymentStatus();
-                        updateUI();
-                    }
-                } else {
-                    updateUI();
-                }
-
-                // Listen for Auth Changes (Login/Logout)
-                supabase.auth.onAuthStateChange(async (event, session) => {
-                    if (event === 'SIGNED_IN' && session) {
-                        currentUser = session.user;
-                        await checkPaymentStatus();
-                        updateUI();
-                        
-                        // If logged in but not paid, redirect to payment
-                        if (!isPaidUser) {
-                            showSection('payment');
-                        }
-                        closeModals();
-                    } else if (event === 'SIGNED_OUT') {
-                        currentUser = null;
-                        isPaidUser = false;
-                        updateUI();
-                        showSection('landing');
-                    }
-                });
-            }
-        }
-
-        /* --- AUTH LOGIC --- */
-
-        async function handleGoogleSignIn() {
-            if (demoMode) {
-                // Simulate Login
-                const btn = event.currentTarget;
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
-                
-                setTimeout(() => {
-                    const mockEmail = "demo_user_" + Math.floor(Math.random() * 1000) + "@gmail.com";
-                    // Create or Get User
-                    const existing = localStorage.getItem('kq_demo_user');
-                    if(existing) {
-                        currentUser = JSON.parse(existing);
-                    } else {
-                        currentUser = { email: mockEmail, is_paid: false };
-                        localStorage.setItem('kq_demo_user', JSON.stringify(currentUser));
-                    }
-                    
-                    isPaidUser = currentUser.is_paid === true;
-                    updateUI();
-                    closeModals();
-                    
-                    if(!isPaidUser) showSection('payment');
-                    else showSection('dashboard');
-                    
-                    btn.innerHTML = originalText;
-                }, 1500);
-                return;
-            }
-
-            // Real Supabase Login
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    // Redirect back to this same page
-                    redirectTo: window.location.href 
-                }
-            });
-
-            if (error) {
-                alert("Login Error: " + error.message);
-            }
-        }
-
-        async function handleEmailLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPass').value;
-            if (!email || !pass) return alert("Enter email and password");
-
-            if(demoMode) {
-                 // Simulate Email Login
-                currentUser = { email: email, is_paid: false };
-                // Check if existing user in localStorage matches
-                const existing = localStorage.getItem('kq_demo_user');
-                if(existing) {
-                     const parsed = JSON.parse(existing);
-                     if(parsed.email === email) currentUser = parsed;
-                }
-                
-                localStorage.setItem('kq_demo_user', JSON.stringify(currentUser));
-                isPaidUser = currentUser.is_paid === true;
-                
                 updateUI();
-                closeModals();
-                if(!isPaidUser) showSection('payment');
-                else showSection('dashboard');
-                return;
             }
-
-            // Real Supabase Email Login
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: pass
-            });
-
-            if (error) alert(error.message);
         }
-        
+
+        /* --- AUTH FLOWS --- */
+
+        function handleGoogleSignIn() {
+            // Simulate OAuth Popup delay
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
+
+            setTimeout(() => {
+                // To allow testing "different" accounts, we ask the user for an email
+                // or generate a random one if they cancel.
+                let mockEmail = prompt("Enter a Google Email to simulate login (e.g., test1@gmail.com):");
+                if(!mockEmail) {
+                    mockEmail = "user" + Math.floor(Math.random() * 1000) + "@gmail.com";
+                }
+                
+                loginOrSignupUser(mockEmail);
+                btn.innerHTML = originalText;
+            }, 1000);
+        }
+
         function toggleEmailForm() {
             els.emailLoginForm.classList.toggle('hidden');
         }
 
-        function logout() {
-            if (demoMode) {
-                localStorage.removeItem('kq_demo_user');
-                currentUser = null;
-                isPaidUser = false;
-                window.location.reload();
-            } else {
-                if(supabase) supabase.auth.signOut();
-            }
-        }
+        function handleEmailLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
 
-        /* --- PAYMENT LOGIC --- */
-
-        async function checkPaymentStatus() {
-            if (!currentUser) return;
+            if (!email || !pass) { alert("Please enter credentials."); return; }
             
-            if (demoMode) {
-                 // already loaded in init
-                 return;
-            }
-
-            // We store "is_paid" in user_metadata for this simple implementation.
-            const metadata = currentUser.user_metadata || {};
-            isPaidUser = metadata.is_paid === true;
+            // In this simulation, any email/pass combo works and creates a new account if needed
+            loginOrSignupUser(email);
         }
 
-        // Triggered when user clicks "Pay" button
-        document.getElementById('completePaymentBtn').addEventListener('click', async () => {
-            if(!currentUser) return alert("Please log in first.");
+        function loginOrSignupUser(email) {
+            // Check if user exists in our "DB"
+            if (!usersDB[email]) {
+                // Create new user
+                usersDB[email] = { email: email, isPaid: false };
+                saveDB();
+            }
+            
+            // Set as current user
+            currentUser = usersDB[email];
+            localStorage.setItem('kq_active_user', email);
+            
+            closeModals();
+            updateUI();
+            checkRedirect();
+        }
+
+        function saveDB() {
+            localStorage.setItem('kq_users_db', JSON.stringify(usersDB));
+        }
+
+        /* --- PAYMENT FLOW --- */
+
+        document.getElementById('completePaymentBtn').addEventListener('click', () => {
+            if(!currentUser) {
+                alert("Please log in first."); 
+                return;
+            }
 
             els.paymentUserEmail.textContent = "Account: " + currentUser.email;
 
             if (PAYMENT_LINK && PAYMENT_LINK !== "") {
                 window.location.href = PAYMENT_LINK;
             } else {
-                // DEMO MODE / SIMULATION: Update status immediately
-                await updateSupabasePaymentStatus(true);
-                handlePaymentSuccessCallback();
+                // SIMULATE REDIRECT TO SUCCESS CALLBACK
+                window.location.href = window.location.pathname + "?payment=success";
             }
         });
 
-        // Triggered after successful payment
-        async function handlePaymentSuccessCallback() {
-            // 1. Update Persistence (Supabase or LocalStorage)
-            await updateSupabasePaymentStatus(true);
-            
-            // 2. Show Success Screen
-            showSection('success');
-            if(els.successUserEmail) {
-                 els.successUserEmail.textContent = currentUser ? currentUser.email : 'Pilot';
+        function handlePaymentSuccessCallback() {
+            // Update User State in DB
+            if (currentUser) {
+                currentUser.isPaid = true;
+                usersDB[currentUser.email] = currentUser;
+                saveDB();
             }
 
-            // 3. Wait & Redirect
+            // 1. Show Success Page
+            showSection('success');
+            els.successUserEmail.textContent = currentUser ? currentUser.email : 'Pilot';
+
+            // 2. Wait 2 seconds
             setTimeout(() => {
+                // 3. Clean URL
                 const url = new URL(window.location);
                 if (url.searchParams.get('payment') === 'success') {
                     url.searchParams.delete('payment');
                     window.history.replaceState({}, document.title, url);
                 }
+                
+                // 4. Update UI and Enter Main
                 updateUI();
                 showSection('dashboard');
             }, 2000);
         }
 
-        // Updates user metadata
-        async function updateSupabasePaymentStatus(status) {
-            isPaidUser = status;
-
-            if (demoMode) {
-                if(currentUser) {
-                    currentUser.is_paid = status;
-                    localStorage.setItem('kq_demo_user', JSON.stringify(currentUser));
-                }
-                return;
+        /* --- REDIRECT LOGIC --- */
+        function checkRedirect() {
+            if (currentUser.isPaid) {
+                showSection('dashboard');
+            } else {
+                showSection('payment');
             }
-
-            if(!supabase || !currentUser) return;
-            
-            const { data, error } = await supabase.auth.updateUser({
-                data: { is_paid: status }
-            });
-            
-            if (error) console.error("Error updating payment status:", error);
         }
 
-        /* --- UI MANAGEMENT --- */
-
+        /* --- UI HELPERS --- */
+        
         function updateUI() {
             // Nav Button State
             if (currentUser) {
@@ -659,7 +540,7 @@
                 els.userEmailDisplay.textContent = currentUser.email;
                 els.userEmailDisplay.classList.remove('hidden');
 
-                if (isPaidUser) unlockMainBtn();
+                if (currentUser.isPaid) unlockMainBtn();
                 else lockMainBtn();
             } else {
                 els.navLoginBtn.textContent = "Login";
@@ -685,9 +566,9 @@
         }
 
         function handleMainAccess() {
-            if (currentUser && isPaidUser) {
+            if (currentUser && currentUser.isPaid) {
                 showSection('dashboard');
-            } else if (currentUser && !isPaidUser) {
+            } else if (currentUser && !currentUser.isPaid) {
                 showSection('payment');
             } else {
                 showLockedAlert();
@@ -704,15 +585,24 @@
             els.navMainBtn.classList.remove('text-cyan-400', 'border-b-2', 'border-cyan-400');
         }
 
-        /* --- MODALS & TOASTS --- */
+        function logout() {
+            localStorage.removeItem('kq_active_user');
+            currentUser = null;
+            location.reload();
+        }
+
+        /* --- MODAL ANIMATIONS --- */
         function openLoginModal() {
             els.loginModal.classList.remove('hidden');
             setTimeout(() => { els.loginModal.classList.remove('opacity-0'); els.loginModal.children[0].classList.add('scale-100'); }, 10);
         }
+
         function closeModals() {
             els.loginModal.classList.add('opacity-0');
             if(els.loginModal.children[0]) els.loginModal.children[0].classList.remove('scale-100');
-            setTimeout(() => { els.loginModal.classList.add('hidden'); }, 300);
+            setTimeout(() => {
+                els.loginModal.classList.add('hidden');
+            }, 300);
         }
 
         let toastTimeout;
@@ -729,7 +619,6 @@
             }, 2000);
         }
 
-        // START
         init();
 
     </script>
