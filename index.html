@@ -171,6 +171,19 @@
         </div>
     </main>
 
+    <!-- === SECTION 4: PAYMENT SUCCESS PAGE === -->
+    <main id="successSection" class="hidden z-20 fixed inset-0 flex items-center justify-center bg-black">
+        <div class="text-center">
+            <div class="text-6xl text-green-400 mb-6 animate-bounce"><i class="fa-solid fa-circle-check"></i></div>
+            <h1 class="font-anime text-4xl md:text-5xl text-white mb-2 tracking-wide">Payment Successful</h1>
+            <p class="text-gray-400 text-lg mb-8">Welcome aboard, <span id="successUserEmail" class="text-cyan-400 font-bold"></span></p>
+            <div class="flex flex-col items-center justify-center gap-3">
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl text-pink-500"></i>
+                <p class="text-xs text-gray-500 uppercase tracking-widest">Initialising Main Protocol...</p>
+            </div>
+        </div>
+    </main>
+
     <!-- === AUTH MODAL (Unified) === -->
     <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
         <div class="modal-content w-full max-w-md p-8 rounded-xl relative transform scale-95 transition-transform duration-300">
@@ -191,6 +204,11 @@
                 <button onclick="handleLogin()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded uppercase tracking-widest transition-colors">
                     Log In
                 </button>
+                <!-- Google Login Button -->
+                <button onclick="handleGoogleLogin()" class="w-full bg-white text-black font-bold py-3 px-4 rounded flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors mt-2">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
+                    Sign in with Google
+                </button>
             </div>
 
             <!-- Signup Form -->
@@ -201,6 +219,11 @@
                 <input type="password" id="signupPass" placeholder="Create Password" class="w-full p-3 rounded input-field">
                 <button onclick="handleSignup()" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 rounded uppercase tracking-widest transition-colors">
                     Sign Up
+                </button>
+                <!-- Google Signup Button -->
+                <button onclick="handleGoogleLogin()" class="w-full bg-white text-black font-bold py-3 px-4 rounded flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors mt-2">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
+                    Sign up with Google
                 </button>
             </div>
         </div>
@@ -236,6 +259,7 @@
             landing: document.getElementById('landingSection'),
             payment: document.getElementById('paymentSection'),
             dashboard: document.getElementById('dashboardSection'),
+            successSection: document.getElementById('successSection'),
             // Auth Modal
             authModal: document.getElementById('authModal'),
             loginForm: document.getElementById('loginForm'),
@@ -248,6 +272,7 @@
             userEmailDisplay: document.getElementById('userEmailDisplay'),
             paymentUserEmail: document.getElementById('paymentUserEmail'),
             paymentMessage: document.getElementById('paymentMessage'),
+            successUserEmail: document.getElementById('successUserEmail'),
             lockedToast: document.getElementById('lockedToast')
         };
 
@@ -255,11 +280,21 @@
         async function init() {
             if (!supabase) return;
 
+            // Check if we are returning from a Payment Success Redirect
+            const urlParams = new URLSearchParams(window.location.search);
+            const isPaymentSuccess = urlParams.get('payment') === 'success';
+
             // Check current session
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
                 currentUser = session.user;
                 await checkDatabaseStatus();
+                
+                if (isPaymentSuccess) {
+                    handlePaymentSuccessCallback();
+                } else {
+                    updateUI();
+                }
             } else {
                 updateUI();
             }
@@ -268,8 +303,9 @@
             supabase.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_IN' && session) {
                     currentUser = session.user;
-                    // Note: checkDatabaseStatus is called explicitly in login logic
-                    // to handle redirects properly, so we don't duplicate it here deeply.
+                    await checkDatabaseStatus();
+                    updateUI();
+                    closeModals();
                 } else if (event === 'SIGNED_OUT') {
                     currentUser = null;
                     isPaidUser = false;
@@ -335,8 +371,6 @@
             } else {
                 // Sign up successful
                 closeModals();
-                // Trigger triggers profile creation in DB (via SQL)
-                // Now we must force payment
                 currentUser = data.user;
                 isPaidUser = false;
                 showPaymentScreen("Account created! Complete payment to activate.");
@@ -364,6 +398,17 @@
             }
         }
 
+        // 3. GOOGLE LOGIN FLOW
+        async function handleGoogleLogin() {
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.href // Redirect back to this page
+                }
+            });
+            if (error) alert("Google Login Failed: " + error.message);
+        }
+
         // --- PAYMENT FUNCTIONS ---
 
         function showPaymentScreen(msg) {
@@ -385,13 +430,29 @@
             if (error) {
                 alert("Payment Error: " + error.message);
             } else {
-                // 2. Success
-                isPaidUser = true;
-                updateUI();
-                alert("Payment Successful! Welcome to KishanQuarks.");
-                showSection('dashboard');
+                // 2. Simulate Redirect to Success (In real life this happens via gateway)
+                handlePaymentSuccessCallback();
             }
         });
+
+        function handlePaymentSuccessCallback() {
+            isPaidUser = true;
+            showSection('success');
+            if(els.successUserEmail) {
+                 els.successUserEmail.textContent = currentUser ? currentUser.email : 'Pilot';
+            }
+
+            setTimeout(() => {
+                // Remove ?payment=success from URL if present
+                const url = new URL(window.location);
+                if (url.searchParams.get('payment') === 'success') {
+                    url.searchParams.delete('payment');
+                    window.history.replaceState({}, document.title, url);
+                }
+                updateUI();
+                showSection('dashboard');
+            }, 2000);
+        }
 
         async function logout() {
             await supabase.auth.signOut();
@@ -426,7 +487,7 @@
         }
 
         function showSection(name) {
-            ['landing', 'payment', 'dashboard'].forEach(n => 
+            ['landing', 'payment', 'dashboard', 'success'].forEach(n => 
                 document.getElementById(n + 'Section').classList.add('hidden')
             );
             document.getElementById(name + 'Section').classList.remove('hidden');
