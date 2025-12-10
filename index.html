@@ -5,132 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>World of KishanQuarks | Gaming Protocol</title>
     
+    <!-- TAILWIND CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SUPABASE JS LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- GLOBAL SETTINGS --- */
-        body {
-            background-color: #050505;
-            color: white;
-            font-family: 'Noto Sans JP', sans-serif;
-            overflow-x: hidden;
-        }
-
-        .font-anime {
-            font-family: 'Black Ops One', cursive;
-        }
-
-        /* --- 3D GRID BACKGROUND --- */
+        /* --- GLOBAL & ANIMATION STYLES --- */
+        body { background-color: #050505; color: white; font-family: 'Noto Sans JP', sans-serif; overflow-x: hidden; }
+        .font-anime { font-family: 'Black Ops One', cursive; }
         .bg-grid {
-            background-image: 
-                linear-gradient(rgba(255, 0, 85, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 0, 85, 0.1) 1px, transparent 1px);
-            background-size: 40px 40px;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            perspective: 1000px;
-            transform: perspective(500px) rotateX(60deg) translateY(-100px) scale(2);
+            background-image: linear-gradient(rgba(255, 0, 85, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 85, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px; position: absolute; width: 100%; height: 100%; z-index: -1;
+            perspective: 1000px; transform: perspective(500px) rotateX(60deg) translateY(-100px) scale(2);
             animation: grid-move 20s linear infinite;
         }
-
-        @keyframes grid-move {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0) scale(2); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(40px) scale(2); }
-        }
-
-        /* --- DYNAMIC TITLE --- */
+        @keyframes grid-move { 0% { transform: perspective(500px) rotateX(60deg) translateY(0) scale(2); } 100% { transform: perspective(500px) rotateX(60deg) translateY(40px) scale(2); } }
         .dynamic-title {
-            background: linear-gradient(to right, #ff0055 0%, #ffffff 50%, #00ffff 100%);
-            background-size: 200% auto;
-            color: #000;
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background: linear-gradient(to right, #ff0055 0%, #ffffff 50%, #00ffff 100%); background-size: 200% auto;
+            color: #000; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             animation: shine-flow 3s linear infinite, float-pulse 5s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(255, 0, 85, 0.4));
-            position: relative;
-            z-index: 10;
+            filter: drop-shadow(0 0 20px rgba(255, 0, 85, 0.4)); position: relative; z-index: 10;
         }
-
         @keyframes shine-flow { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
-        @keyframes float-pulse { 
-            0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 20px rgba(255, 0, 85, 0.4)); }
-            50% { transform: translateY(-5px) scale(1.02); filter: drop-shadow(0 0 35px rgba(0, 255, 255, 0.6)); }
-        }
-
-        /* --- UTILITIES --- */
-        .btn-locked {
-            position: relative;
-            opacity: 0.5;
-            cursor: not-allowed;
-            filter: grayscale(100%);
-        }
-        .btn-locked::after {
-            content: "\f023"; /* FontAwesome Lock Icon */
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            font-size: 12px;
-            color: #fff;
-        }
-
-        .btn-pay {
-            background: linear-gradient(45deg, #ff0055, #ff00aa);
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.6);
-            transition: all 0.3s;
-            animation: pulse 2s infinite;
-        }
+        @keyframes float-pulse { 0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 20px rgba(255, 0, 85, 0.4)); } 50% { transform: translateY(-5px) scale(1.02); filter: drop-shadow(0 0 35px rgba(0, 255, 255, 0.6)); } }
+        .btn-locked { position: relative; opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+        .btn-locked::after { content: "\f023"; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: -10px; right: -10px; font-size: 12px; color: #fff; }
+        .btn-pay { background: linear-gradient(45deg, #ff0055, #ff00aa); box-shadow: 0 0 20px rgba(255, 0, 85, 0.6); transition: all 0.3s; animation: pulse 2s infinite; }
         .btn-pay:hover { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 0, 85, 0.9); }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 0, 85, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); } }
-
         .japanese-vertical { writing-mode: vertical-rl; text-orientation: upright; }
-
         .reward-card { background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(5px); transition: transform 0.2s, border-color 0.2s; }
         .reward-card:hover { transform: translateY(-5px); }
         .glow-text { text-shadow: 0 0 10px currentColor; }
-
-        /* --- MODAL STYLES --- */
-        .modal-overlay {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-        }
-        .modal-content {
-            background: rgba(15, 15, 25, 0.95);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
-        }
-        .input-field {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid #333;
-            color: white;
-            transition: border-color 0.3s;
-        }
-        .input-field:focus {
-            border-color: #ff0055;
-            outline: none;
-            box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
-        }
-        .divider-line {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.2);
-            flex: 1;
-        }
-
-        /* --- DASHBOARD STYLES --- */
-        .dashboard-card {
-            background: linear-gradient(180deg, rgba(20,20,30,0.9) 0%, rgba(10,10,15,0.95) 100%);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .dashboard-card:hover {
-            border-color: #00ffff;
-        }
+        .modal-overlay { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); }
+        .modal-content { background: rgba(15, 15, 25, 0.95); border: 1px solid rgba(0, 255, 255, 0.3); box-shadow: 0 0 30px rgba(0, 255, 255, 0.1); }
+        .input-field { background: rgba(0, 0, 0, 0.5); border: 1px solid #333; color: white; transition: border-color 0.3s; }
+        .input-field:focus { border-color: #ff0055; outline: none; box-shadow: 0 0 10px rgba(255, 0, 85, 0.3); }
+        .dashboard-card { background: linear-gradient(180deg, rgba(20,20,30,0.9) 0%, rgba(10,10,15,0.95) 100%); border: 1px solid rgba(255,255,255,0.1); }
+        .dashboard-card:hover { border-color: #00ffff; }
+        .tab-btn { padding: 8px 16px; border-bottom: 2px solid transparent; color: #888; transition: all 0.3s; }
+        .tab-btn.active { border-color: #ff0055; color: white; }
     </style>
 </head>
 <body class="min-h-screen w-full flex flex-col items-center relative overflow-x-hidden">
@@ -149,98 +67,67 @@
         <div class="text-2xl font-anime text-pink-500 tracking-tighter">KISHAN<span class="text-cyan-400">QUARKS</span></div>
         <div class="hidden md:flex gap-8 items-center">
             <button class="text-white hover:text-pink-500 transition-colors uppercase tracking-widest text-xs font-bold" onclick="showSection('landing')">Home</button>
-            <!-- NEW MAIN BUTTON (Initially Locked) -->
             <button id="navMainBtn" class="btn-locked text-gray-400 hover:text-white transition-colors uppercase tracking-widest text-xs font-bold ml-4" onclick="handleMainAccess()">
                 Main Area
             </button>
         </div>
-        <!-- LOGIN BUTTON -->
         <div class="flex items-center gap-4">
             <div id="userEmailDisplay" class="hidden text-xs text-cyan-400 font-mono"></div>
-            <button id="navLoginBtn" class="border border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10 transition-colors px-6 py-2 rounded-none uppercase text-xs tracking-widest" onclick="openLoginModal()">Login</button>
+            <button id="navLoginBtn" class="border border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10 transition-colors px-6 py-2 rounded-none uppercase text-xs tracking-widest" onclick="openAuthModal()">Login / Sign Up</button>
         </div>
     </nav>
 
     <!-- === SECTION 1: LANDING PAGE === -->
     <main id="landingSection" class="z-10 text-center max-w-5xl px-4 relative mt-10 md:mt-20 pb-20 transition-opacity duration-500">
+        <h1 class="font-anime text-5xl md:text-8xl font-black mb-8 leading-tight dynamic-title">World of<br>KishanQuarks</h1>
         
-        <h1 class="font-anime text-5xl md:text-8xl font-black mb-8 leading-tight dynamic-title">
-            World of<br>KishanQuarks
-        </h1>
-        
-        <!-- REWARDS SECTION -->
         <div class="mb-14">
             <h2 class="font-anime text-2xl md:text-3xl text-yellow-400 mb-6 uppercase tracking-wider glow-text flex items-center justify-center gap-3">
                 <span class="text-sm">⚡</span> Participate in Upcoming Competitions to Get These Rewards <span class="text-sm">⚡</span>
             </h2>
-            
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-                <!-- Rewards Cards -->
                 <div class="reward-card border border-emerald-500/30 p-5 rounded-lg hover:border-emerald-400 group">
                     <div class="text-xs text-emerald-600 uppercase font-bold tracking-widest mb-1">AI Power</div>
                     <div class="text-emerald-300 font-bold text-lg mb-1 group-hover:text-white">ChatGPT Plus</div>
-                    <div class="text-gray-400 text-xs">Full access to GPT-4o.</div>
                 </div>
                 <div class="reward-card border border-blue-500/30 p-5 rounded-lg hover:border-blue-400 group">
                     <div class="text-xs text-blue-600 uppercase font-bold tracking-widest mb-1">Advanced Intel</div>
                     <div class="text-blue-300 font-bold text-lg mb-1 group-hover:text-white">Google AI Ultra</div>
-                    <div class="text-gray-400 text-xs">Unlock Gemini Advanced.</div>
                 </div>
                 <div class="reward-card border border-orange-500/30 p-5 rounded-lg hover:border-orange-400 group">
                     <div class="text-xs text-orange-600 uppercase font-bold tracking-widest mb-1">Streaming</div>
                     <div class="text-orange-300 font-bold text-lg mb-1 group-hover:text-white">Crunchyroll Ult.</div>
-                    <div class="text-gray-400 text-xs">Ultimate Fan Membership.</div>
                 </div>
                 <div class="reward-card border border-red-500/30 p-5 rounded-lg hover:border-red-400 group">
                     <div class="text-xs text-red-600 uppercase font-bold tracking-widest mb-1">Media</div>
                     <div class="text-red-300 font-bold text-lg mb-1 group-hover:text-white">YouTube Premium</div>
-                    <div class="text-gray-400 text-xs">Ad-free viewing.</div>
-                </div>
-                <!-- Early Access -->
-                <div class="md:col-span-2 lg:col-span-4 bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-purple-500/50 p-5 rounded-lg hover:border-purple-300 transition-all group flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
-                    <div class="text-4xl bg-black/30 rounded-full p-3">⏳</div>
-                    <div>
-                        <div class="text-purple-300 font-bold text-xl group-hover:text-white uppercase font-anime tracking-wide">Time Traveler Access</div>
-                        <div class="text-gray-300 text-sm">
-                            Gain exclusive clearance to watch new episodes <span class="text-white font-bold bg-purple-600/50 px-2 py-0.5 rounded text-xs">15 DAYS EARLY</span>.
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- ACTION BUTTONS -->
         <div class="flex flex-col md:flex-row items-center justify-center gap-6">
             <button class="btn-locked group relative px-8 py-4 bg-gray-900 border border-gray-700 text-gray-500 font-bold uppercase tracking-widest overflow-hidden" onclick="showLockedAlert()">
                 <span class="relative z-10">Watch Trailer</span>
                 <div class="absolute inset-0 bg-gray-800 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
             </button>
-            <!-- Triggers the Login/Signup Flow now -->
-            <button onclick="openLoginModal()" class="btn-pay relative px-10 py-5 bg-pink-600 text-white font-black text-xl uppercase tracking-widest clip-path-polygon hover:bg-pink-500 flex items-center gap-3">
+            <button onclick="openAuthModal('signup')" class="btn-pay relative px-10 py-5 bg-pink-600 text-white font-black text-xl uppercase tracking-widest clip-path-polygon hover:bg-pink-500 flex items-center gap-3">
                 <span>⚡</span>
                 <span>Get Started</span>
                 <span>⚡</span>
             </button>
         </div>
-
-        <div class="mt-12 text-xs text-gray-500 uppercase tracking-widest border-t border-gray-800 pt-6">
-            Server Status: <span class="text-red-500">Locked</span> <span class="mx-2">|</span> Early Access Slots: <span class="text-cyan-400">04/100 Remaining</span>
-        </div>
     </main>
 
-    <!-- === SECTION 2: PAYMENT INTERFACE (Hidden by default) === -->
+    <!-- === SECTION 2: PAYMENT INTERFACE === -->
     <main id="paymentSection" class="hidden z-10 w-full max-w-2xl px-4 mt-20 text-center">
         <div class="bg-black/80 border border-pink-500/50 p-8 rounded-xl backdrop-blur-xl relative overflow-hidden">
-            <!-- decorative background -->
             <div class="absolute inset-0 bg-gradient-to-b from-pink-500/10 to-transparent pointer-events-none"></div>
-            
-            <h2 class="font-anime text-4xl mb-2 text-white">Secure Uplink</h2>
-            <p class="text-gray-400 mb-8">Pay ₹1 to Unlock Main Features. This verifies your account.</p>
-            
+            <h2 class="font-anime text-4xl mb-2 text-white">Subscription Required</h2>
+            <p class="text-gray-400 mb-8" id="paymentMessage">Pay ₹1 to Unlock Main Features. Verification required.</p>
             <div class="bg-gray-900/50 p-6 rounded-lg mb-8 border border-gray-700 text-left flex items-center justify-between">
                 <div>
                     <div class="text-sm text-gray-400 uppercase tracking-widest">Item</div>
-                    <div class="text-xl font-bold text-cyan-400">Early Access Pass</div>
+                    <div class="text-xl font-bold text-cyan-400">Lifetime Access</div>
                     <div class="text-xs text-gray-500 mt-1" id="paymentUserEmail"></div>
                 </div>
                 <div class="text-right">
@@ -248,16 +135,13 @@
                     <div class="text-3xl font-anime text-white">₹1.00</div>
                 </div>
             </div>
-
             <button id="completePaymentBtn" class="w-full btn-pay py-4 text-xl font-black uppercase tracking-widest rounded">
-                Pay ₹1 & Unlock
+                Pay ₹1 & Activate
             </button>
-            
-            <p class="mt-4 text-xs text-gray-500">Secure 256-bit encrypted transaction.</p>
         </div>
     </main>
 
-    <!-- === SECTION 3: DASHBOARD / MAIN AREA (Hidden by default) === -->
+    <!-- === SECTION 3: DASHBOARD / MAIN AREA === -->
     <main id="dashboardSection" class="hidden z-10 w-full max-w-6xl px-4 mt-10 pb-20">
         <div class="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
             <div>
@@ -268,359 +152,318 @@
                 <span class="bg-green-500/20 text-green-400 border border-green-500/50 px-3 py-1 text-xs font-bold uppercase rounded">Access Granted</span>
             </div>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Feature 1 -->
             <div class="dashboard-card p-6 rounded-xl">
                 <div class="text-4xl mb-4 text-purple-400"><i class="fa-solid fa-gamepad"></i></div>
                 <h3 class="font-bold text-xl mb-2">Beta Server List</h3>
-                <p class="text-sm text-gray-400 mb-4">Join active gaming lobbies exclusively for supporters.</p>
-                <button class="bg-purple-600/20 text-purple-300 border border-purple-500/50 px-4 py-2 rounded text-sm w-full hover:bg-purple-600 hover:text-white transition-colors">Connect</button>
+                <button class="bg-purple-600/20 text-purple-300 border border-purple-500/50 px-4 py-2 rounded text-sm w-full">Connect</button>
             </div>
-             <!-- Feature 2 -->
-             <div class="dashboard-card p-6 rounded-xl">
+            <div class="dashboard-card p-6 rounded-xl">
                 <div class="text-4xl mb-4 text-pink-400"><i class="fa-solid fa-trophy"></i></div>
                 <h3 class="font-bold text-xl mb-2">Tournaments</h3>
-                <p class="text-sm text-gray-400 mb-4">Register for the upcoming ₹10k prize pool event.</p>
-                <button class="bg-pink-600/20 text-pink-300 border border-pink-500/50 px-4 py-2 rounded text-sm w-full hover:bg-pink-600 hover:text-white transition-colors">Register</button>
+                <button class="bg-pink-600/20 text-pink-300 border border-pink-500/50 px-4 py-2 rounded text-sm w-full">Register</button>
             </div>
-             <!-- Feature 3 -->
-             <div class="dashboard-card p-6 rounded-xl">
+            <div class="dashboard-card p-6 rounded-xl">
                 <div class="text-4xl mb-4 text-yellow-400"><i class="fa-solid fa-gift"></i></div>
                 <h3 class="font-bold text-xl mb-2">My Rewards</h3>
-                <p class="text-sm text-gray-400 mb-4">Claim your ChatGPT and YouTube codes here.</p>
-                <button class="bg-yellow-600/20 text-yellow-300 border border-yellow-500/50 px-4 py-2 rounded text-sm w-full hover:bg-yellow-600 hover:text-white transition-colors">View Vault</button>
+                <button class="bg-yellow-600/20 text-yellow-300 border border-yellow-500/50 px-4 py-2 rounded text-sm w-full">View Vault</button>
             </div>
         </div>
     </main>
 
-    <!-- === SECTION 4: PAYMENT SUCCESS PAGE (Hidden by default) === -->
-    <!-- PAYMENT SUCCESS PAGE -->
-    <main id="successSection" class="hidden z-20 fixed inset-0 flex items-center justify-center bg-black">
-        <div class="text-center">
-            <!-- Celebration Icon -->
-            <div class="text-6xl text-green-400 mb-6 animate-bounce">
-                <i class="fa-solid fa-circle-check"></i>
-            </div>
-            
-            <!-- Success Text -->
-            <h1 class="font-anime text-4xl md:text-5xl text-white mb-2 tracking-wide">
-                Payment Successful
-            </h1>
-            <p class="text-gray-400 text-lg mb-8">
-                Welcome aboard, <span id="successUserEmail" class="text-cyan-400 font-bold"></span>
-            </p>
-            
-            <!-- Loading Spinner -->
-            <div class="flex flex-col items-center justify-center gap-3">
-                <i class="fa-solid fa-circle-notch fa-spin text-2xl text-pink-500"></i>
-                <p class="text-xs text-gray-500 uppercase tracking-widest">Initialising Main Protocol...</p>
-            </div>
-        </div>
-    </main>
-
-    <!-- === MODAL 1: LOGIN / SIGNUP CHOICE === -->
-    <div id="loginModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
+    <!-- === AUTH MODAL (Unified) === -->
+    <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
         <div class="modal-content w-full max-w-md p-8 rounded-xl relative transform scale-95 transition-transform duration-300">
             <button onclick="closeModals()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             
-            <h2 class="font-anime text-2xl mb-6 text-center text-white">Sign in or Create an account</h2>
-            
-            <div class="space-y-4">
-                <!-- Option A: Google OAuth (Simulated) -->
-                <button onclick="handleGoogleSignIn()" class="w-full bg-white text-black font-bold py-3 px-4 rounded flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
-                    Sign in with Google
-                </button>
-                <p class="text-center text-xs text-gray-500">(Simulated for Testing)</p>
-                
-                <div class="flex items-center gap-4 my-2">
-                    <div class="divider-line"></div>
-                    <span class="text-gray-500 text-xs uppercase">OR</span>
-                    <div class="divider-line"></div>
-                </div>
+            <!-- Tabs -->
+            <div class="flex mb-6 border-b border-gray-700">
+                <button id="tabLogin" onclick="switchAuthTab('login')" class="tab-btn w-1/2 text-center active">Login</button>
+                <button id="tabSignup" onclick="switchAuthTab('signup')" class="tab-btn w-1/2 text-center">Sign Up</button>
+            </div>
 
-                <!-- Option B: Email/Password (Toggle) -->
-                <button onclick="toggleEmailForm()" class="w-full border border-gray-600 text-gray-300 font-bold py-3 px-4 rounded hover:bg-gray-800 transition-colors">
-                    Sign in with Email
+            <!-- Login Form -->
+            <div id="loginForm" class="space-y-4">
+                <h2 class="font-anime text-2xl mb-2 text-center text-white">Welcome Back</h2>
+                <p class="text-gray-500 text-xs text-center mb-4">Log in to your existing account</p>
+                <input type="email" id="loginEmail" placeholder="Email Address" class="w-full p-3 rounded input-field">
+                <input type="password" id="loginPass" placeholder="Password" class="w-full p-3 rounded input-field">
+                <button onclick="handleLogin()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded uppercase tracking-widest transition-colors">
+                    Log In
                 </button>
+            </div>
 
-                <!-- Hidden Email Form -->
-                <div id="emailLoginForm" class="hidden space-y-3 pt-2 border-t border-gray-800 mt-2">
-                    <input type="email" id="loginEmail" placeholder="Email Address" class="w-full p-3 rounded input-field">
-                    <input type="password" id="loginPass" placeholder="Password" class="w-full p-3 rounded input-field">
-                    <button onclick="handleEmailLogin()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded uppercase tracking-widest transition-colors">
-                        Continue
-                    </button>
-                </div>
+            <!-- Signup Form -->
+            <div id="signupForm" class="hidden space-y-4">
+                <h2 class="font-anime text-2xl mb-2 text-center text-white">New Pilot</h2>
+                <p class="text-gray-500 text-xs text-center mb-4">Create account & purchase subscription</p>
+                <input type="email" id="signupEmail" placeholder="Email Address" class="w-full p-3 rounded input-field">
+                <input type="password" id="signupPass" placeholder="Create Password" class="w-full p-3 rounded input-field">
+                <button onclick="handleSignup()" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 rounded uppercase tracking-widest transition-colors">
+                    Sign Up
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- LOCKED TOAST NOTIFICATION -->
+    <!-- TOASTS -->
     <div id="lockedToast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-red-900/90 border border-red-500 text-white px-6 py-3 rounded shadow-lg translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3">
         <span class="text-xl">🔒</span>
-        <div>
-            <div class="font-bold text-sm uppercase">Locked</div>
-            <div class="text-xs text-red-200">Sign up and pay ₹1 to access Main.</div>
-        </div>
+        <div><div class="font-bold text-sm uppercase">Locked</div><div class="text-xs text-red-200">Sign up and pay ₹1 to access Main.</div></div>
     </div>
 
     <script>
         /**
          * ------------------------------------------------------------------
-         * CONFIGURATION ZONE
+         * CONFIGURATION ZONE (CONFIGURED)
          * ------------------------------------------------------------------
          */
-        const PAYMENT_LINK = ""; // Paste real payment link here (e.g. Razorpay/Stripe)
+        const SUPABASE_URL = "https://vgdeqwtoiwoyosbgdcjp.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnZGVxd3RvaXdveW9zYmdkY2pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyOTI4MjMsImV4cCI6MjA4MDg2ODgyM30.DflJ95HrDnVrRLM-m9iF3CQ_B3KOdE4i6_NrbdXmIC0";
 
-        /**
-         * ------------------------------------------------------------------
-         * STATE MANAGEMENT
-         * ------------------------------------------------------------------
-         * Uses LocalStorage to simulate a database.
-         * 'kq_active_user' stores the currently logged in email.
-         * 'kq_users_db' is a JSON object storing all users and their payment status.
-         */
-        let currentUser = null; // { email: string, isPaid: boolean }
-        let usersDB = JSON.parse(localStorage.getItem('kq_users_db')) || {};
+        // Initialize Supabase
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (e) { console.error("Supabase Init Error:", e); }
+
+        // --- STATE ---
+        let currentUser = null;
+        let isPaidUser = false;
 
         const els = {
+            // Sections
             landing: document.getElementById('landingSection'),
             payment: document.getElementById('paymentSection'),
             dashboard: document.getElementById('dashboardSection'),
-            successSection: document.getElementById('successSection'),
-            loginModal: document.getElementById('loginModal'),
+            // Auth Modal
+            authModal: document.getElementById('authModal'),
+            loginForm: document.getElementById('loginForm'),
+            signupForm: document.getElementById('signupForm'),
+            tabLogin: document.getElementById('tabLogin'),
+            tabSignup: document.getElementById('tabSignup'),
+            // Nav & Displays
             navMainBtn: document.getElementById('navMainBtn'),
             navLoginBtn: document.getElementById('navLoginBtn'),
             userEmailDisplay: document.getElementById('userEmailDisplay'),
-            emailLoginForm: document.getElementById('emailLoginForm'),
             paymentUserEmail: document.getElementById('paymentUserEmail'),
-            successUserEmail: document.getElementById('successUserEmail'),
+            paymentMessage: document.getElementById('paymentMessage'),
             lockedToast: document.getElementById('lockedToast')
         };
 
-        function init() {
-            // Check for Payment Success Callback in URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const isPaymentSuccess = urlParams.get('payment') === 'success';
+        // --- INIT ---
+        async function init() {
+            if (!supabase) return;
 
-            // Check if a user is already logged in
-            const activeEmail = localStorage.getItem('kq_active_user');
-            if (activeEmail && usersDB[activeEmail]) {
-                currentUser = usersDB[activeEmail];
-                
-                if (isPaymentSuccess) {
-                    handlePaymentSuccessCallback();
-                } else {
-                    updateUI();
-                }
+            // Check current session
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                await checkDatabaseStatus();
             } else {
                 updateUI();
             }
-        }
 
-        /* --- AUTH FLOWS --- */
-
-        function handleGoogleSignIn() {
-            // Simulate OAuth Popup delay
-            const btn = event.currentTarget;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
-
-            setTimeout(() => {
-                // To allow testing "different" accounts, we ask the user for an email
-                // or generate a random one if they cancel.
-                let mockEmail = prompt("Enter a Google Email to simulate login (e.g., test1@gmail.com):");
-                if(!mockEmail) {
-                    mockEmail = "user" + Math.floor(Math.random() * 1000) + "@gmail.com";
+            // Listen for Auth changes
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                if (event === 'SIGNED_IN' && session) {
+                    currentUser = session.user;
+                    // Note: checkDatabaseStatus is called explicitly in login logic
+                    // to handle redirects properly, so we don't duplicate it here deeply.
+                } else if (event === 'SIGNED_OUT') {
+                    currentUser = null;
+                    isPaidUser = false;
+                    updateUI();
+                    showSection('landing');
                 }
+            });
+        }
+
+        // --- CORE LOGIC (DB Checks) ---
+
+        // Check if the current user has paid
+        async function checkDatabaseStatus() {
+            if (!currentUser) return;
+
+            // Query the 'profiles' table we created in SQL
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('is_paid')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (data) {
+                isPaidUser = data.is_paid;
+                updateUI();
                 
-                loginOrSignupUser(mockEmail);
-                btn.innerHTML = originalText;
-            }, 1000);
+                // If logged in but NOT paid -> Force Payment
+                if (!isPaidUser) {
+                    showPaymentScreen("You haven’t purchased a subscription with this email. Please pay to continue.");
+                } else {
+                    // Paid -> Show Dashboard
+                    showSection('dashboard');
+                }
+            } else if (error) {
+                // IMPORTANT: If profile missing, create it now (fallback)
+                // This happens if SQL trigger failed or user created before trigger existed
+                if(error.code === 'PGRST116') {
+                    console.log("Profile missing, creating now...");
+                    await supabase.from('profiles').insert([{ id: currentUser.id, email: currentUser.email, is_paid: false }]);
+                    isPaidUser = false;
+                    showPaymentScreen("Account setup complete. Please pay to continue.");
+                } else {
+                    console.error("DB Error:", error);
+                }
+            }
         }
 
-        function toggleEmailForm() {
-            els.emailLoginForm.classList.toggle('hidden');
+        // --- AUTH FUNCTIONS ---
+
+        // 1. SIGN UP FLOW
+        async function handleSignup() {
+            const email = document.getElementById('signupEmail').value;
+            const pass = document.getElementById('signupPass').value;
+            if(!email || !pass) return alert("Please fill all fields");
+
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: pass
+            });
+
+            if (error) {
+                alert(error.message);
+            } else {
+                // Sign up successful
+                closeModals();
+                // Trigger triggers profile creation in DB (via SQL)
+                // Now we must force payment
+                currentUser = data.user;
+                isPaidUser = false;
+                showPaymentScreen("Account created! Complete payment to activate.");
+            }
         }
 
-        function handleEmailLogin() {
+        // 2. LOGIN FLOW
+        async function handleLogin() {
             const email = document.getElementById('loginEmail').value;
             const pass = document.getElementById('loginPass').value;
+            if(!email || !pass) return alert("Please fill all fields");
 
-            if (!email || !pass) { alert("Please enter credentials."); return; }
-            
-            // In this simulation, any email/pass combo works and creates a new account if needed
-            loginOrSignupUser(email);
-        }
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: pass
+            });
 
-        function loginOrSignupUser(email) {
-            // Check if user exists in our "DB"
-            if (!usersDB[email]) {
-                // Create new user
-                usersDB[email] = { email: email, isPaid: false };
-                saveDB();
-            }
-            
-            // Set as current user
-            currentUser = usersDB[email];
-            localStorage.setItem('kq_active_user', email);
-            
-            closeModals();
-            updateUI();
-            checkRedirect();
-        }
-
-        function saveDB() {
-            localStorage.setItem('kq_users_db', JSON.stringify(usersDB));
-        }
-
-        /* --- PAYMENT FLOW --- */
-
-        document.getElementById('completePaymentBtn').addEventListener('click', () => {
-            if(!currentUser) {
-                alert("Please log in first."); 
-                return;
-            }
-
-            els.paymentUserEmail.textContent = "Account: " + currentUser.email;
-
-            if (PAYMENT_LINK && PAYMENT_LINK !== "") {
-                window.location.href = PAYMENT_LINK;
+            if (error) {
+                alert("Login Failed: " + error.message);
             } else {
-                // SIMULATE REDIRECT TO SUCCESS CALLBACK
-                window.location.href = window.location.pathname + "?payment=success";
+                closeModals();
+                currentUser = data.user;
+                // CRITICAL: Check subscription status before allowing entry
+                await checkDatabaseStatus();
+            }
+        }
+
+        // --- PAYMENT FUNCTIONS ---
+
+        function showPaymentScreen(msg) {
+            showSection('payment');
+            els.paymentMessage.textContent = msg;
+            els.paymentUserEmail.textContent = currentUser ? currentUser.email : '';
+        }
+
+        // Triggered by "Pay" button
+        document.getElementById('completePaymentBtn').addEventListener('click', async () => {
+            if(!currentUser) return;
+
+            // 1. Update Database
+            const { error } = await supabase
+                .from('profiles')
+                .update({ is_paid: true })
+                .eq('id', currentUser.id);
+
+            if (error) {
+                alert("Payment Error: " + error.message);
+            } else {
+                // 2. Success
+                isPaidUser = true;
+                updateUI();
+                alert("Payment Successful! Welcome to KishanQuarks.");
+                showSection('dashboard');
             }
         });
 
-        function handlePaymentSuccessCallback() {
-            // Update User State in DB
-            if (currentUser) {
-                currentUser.isPaid = true;
-                usersDB[currentUser.email] = currentUser;
-                saveDB();
-            }
-
-            // 1. Show Success Page
-            showSection('success');
-            els.successUserEmail.textContent = currentUser ? currentUser.email : 'Pilot';
-
-            // 2. Wait 2 seconds
-            setTimeout(() => {
-                // 3. Clean URL
-                const url = new URL(window.location);
-                if (url.searchParams.get('payment') === 'success') {
-                    url.searchParams.delete('payment');
-                    window.history.replaceState({}, document.title, url);
-                }
-                
-                // 4. Update UI and Enter Main
-                updateUI();
-                showSection('dashboard');
-            }, 2000);
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.reload();
         }
 
-        /* --- REDIRECT LOGIC --- */
-        function checkRedirect() {
-            if (currentUser.isPaid) {
-                showSection('dashboard');
+        // --- UI HELPERS ---
+
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                els.loginForm.classList.remove('hidden');
+                els.signupForm.classList.add('hidden');
+                els.tabLogin.classList.add('active');
+                els.tabSignup.classList.remove('active');
             } else {
-                showSection('payment');
+                els.loginForm.classList.add('hidden');
+                els.signupForm.classList.remove('hidden');
+                els.tabLogin.classList.remove('active');
+                els.tabSignup.classList.add('active');
             }
         }
 
-        /* --- UI HELPERS --- */
-        
+        function openAuthModal(mode = 'login') {
+            els.authModal.classList.remove('hidden');
+            setTimeout(() => { els.authModal.classList.remove('opacity-0'); els.authModal.children[0].classList.add('scale-100'); }, 10);
+            switchAuthTab(mode);
+        }
+
+        function closeModals() {
+            els.authModal.classList.add('opacity-0');
+            setTimeout(() => { els.authModal.classList.add('hidden'); }, 300);
+        }
+
+        function showSection(name) {
+            ['landing', 'payment', 'dashboard'].forEach(n => 
+                document.getElementById(n + 'Section').classList.add('hidden')
+            );
+            document.getElementById(name + 'Section').classList.remove('hidden');
+        }
+
         function updateUI() {
-            // Nav Button State
             if (currentUser) {
                 els.navLoginBtn.textContent = "Logout";
                 els.navLoginBtn.onclick = logout;
                 els.userEmailDisplay.textContent = currentUser.email;
                 els.userEmailDisplay.classList.remove('hidden');
-
-                if (currentUser.isPaid) unlockMainBtn();
-                else lockMainBtn();
+                
+                if (isPaidUser) {
+                    els.navMainBtn.classList.remove('btn-locked', 'text-gray-400');
+                    els.navMainBtn.classList.add('text-cyan-400');
+                }
             } else {
-                els.navLoginBtn.textContent = "Login";
-                els.navLoginBtn.onclick = openLoginModal;
+                els.navLoginBtn.textContent = "Login / Sign Up";
+                els.navLoginBtn.onclick = () => openAuthModal('login');
                 els.userEmailDisplay.classList.add('hidden');
-                lockMainBtn();
             }
-        }
-
-        function showSection(name) {
-            els.landing.classList.add('hidden');
-            els.payment.classList.add('hidden');
-            els.dashboard.classList.add('hidden');
-            els.successSection.classList.add('hidden');
-
-            if (name === 'landing') els.landing.classList.remove('hidden');
-            if (name === 'payment') {
-                els.payment.classList.remove('hidden');
-                els.paymentUserEmail.textContent = currentUser ? currentUser.email : '';
-            }
-            if (name === 'dashboard') els.dashboard.classList.remove('hidden');
-            if (name === 'success') els.successSection.classList.remove('hidden');
         }
 
         function handleMainAccess() {
-            if (currentUser && currentUser.isPaid) {
-                showSection('dashboard');
-            } else if (currentUser && !currentUser.isPaid) {
-                showSection('payment');
-            } else {
-                showLockedAlert();
-            }
-        }
-
-        function unlockMainBtn() {
-            els.navMainBtn.classList.remove('btn-locked', 'text-gray-400');
-            els.navMainBtn.classList.add('text-cyan-400', 'border-b-2', 'border-cyan-400');
-        }
-
-        function lockMainBtn() {
-            els.navMainBtn.classList.add('btn-locked', 'text-gray-400');
-            els.navMainBtn.classList.remove('text-cyan-400', 'border-b-2', 'border-cyan-400');
-        }
-
-        function logout() {
-            localStorage.removeItem('kq_active_user');
-            currentUser = null;
-            location.reload();
-        }
-
-        /* --- MODAL ANIMATIONS --- */
-        function openLoginModal() {
-            els.loginModal.classList.remove('hidden');
-            setTimeout(() => { els.loginModal.classList.remove('opacity-0'); els.loginModal.children[0].classList.add('scale-100'); }, 10);
-        }
-
-        function closeModals() {
-            els.loginModal.classList.add('opacity-0');
-            if(els.loginModal.children[0]) els.loginModal.children[0].classList.remove('scale-100');
-            setTimeout(() => {
-                els.loginModal.classList.add('hidden');
-            }, 300);
+            if (currentUser && isPaidUser) showSection('dashboard');
+            else if (currentUser && !isPaidUser) showPaymentScreen("Please complete payment first.");
+            else showLockedAlert();
         }
 
         let toastTimeout;
         window.showLockedAlert = function() {
             clearTimeout(toastTimeout);
             els.lockedToast.classList.remove('translate-y-20', 'opacity-0');
-            els.lockedToast.animate([
-                { transform: 'translateX(-50%) translateX(-5px)' },
-                { transform: 'translateX(-50%) translateX(5px)' },
-                { transform: 'translateX(-50%) translateX(0)' }
-            ], { duration: 200 });
-            toastTimeout = setTimeout(() => {
-                els.lockedToast.classList.add('translate-y-20', 'opacity-0');
-            }, 2000);
+            toastTimeout = setTimeout(() => { els.lockedToast.classList.add('translate-y-20', 'opacity-0'); }, 2000);
         }
 
         init();
-
     </script>
 </body>
 </html>
