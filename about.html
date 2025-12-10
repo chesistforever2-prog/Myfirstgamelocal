@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Kishanquarks</title>
+    
+    <!-- TAILWIND CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { background-color: #050505; color: #e5e7eb; font-family: 'Noto Sans JP', sans-serif; }
+        .font-anime { font-family: 'Black Ops One', cursive; }
+        .policy-container {
+            background: rgba(20, 20, 30, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1, h2, h3 { color: #fff; }
+        h2 { margin-top: 2rem; margin-bottom: 1rem; font-weight: 700; color: #00ffff; font-family: 'Black Ops One', cursive; letter-spacing: 1px; font-size: 1.5rem; }
+        ul { list-style-type: none; padding-left: 0; margin-bottom: 1rem; color: #9ca3af; }
+        li { margin-bottom: 0.8rem; position: relative; padding-left: 1.5rem; }
+        li::before { content: '►'; color: #ff0055; position: absolute; left: 0; top: 2px; font-size: 0.8em; }
+        p { margin-bottom: 1rem; line-height: 1.7; color: #d1d5db; }
+        .highlight { color: #ff0055; font-weight: bold; }
+        .section-box { margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; }
+        .quote-box { border-left: 4px solid #00ffff; background: rgba(0, 255, 255, 0.05); padding: 1.5rem; font-style: italic; color: #fff; margin: 1.5rem 0; border-radius: 0 0.5rem 0.5rem 0; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <nav class="w-full p-6 flex justify-between items-center border-b border-gray-800 bg-black/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="text-2xl font-anime text-pink-500 tracking-tighter cursor-pointer" onclick="window.location.href='index.html'">
+            KISHAN<span class="text-cyan-400">QUARKS</span>
+        </div>
+        <a href="index.html" class="text-xs md:text-sm text-gray-400 hover:text-white transition-colors uppercase tracking-widest font-bold flex items-center">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Back to Game
+        </a>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-4xl">
+        
+        <div class="policy-container p-8 md:p-12 rounded-2xl shadow-2xl">
+            <h1 class="text-4xl md:text-6xl font-anime mb-8 text-center text-white">About Us</h1>
+
+            <!-- INTRO -->
+            <div class="mb-8">
+                <p class="text-lg">Welcome to <strong>Kishanquarks</strong>, India’s simplest and most exciting online gaming platform where you can play fun games, compete with real players, and win amazing rewards — all for just <strong>₹1</strong>!</p>
+                <div class="quote-box">
+                    “Gaming should be fun, fair, and affordable for everyone.”
+                </div>
+                <p>Whether you are here to enjoy games, test your skills, or win cool prizes, we provide a safe and fair environment for all players.</p>
+            </div>
+
+            <!-- MISSION -->
+            <div class="section-box">
+                <h2>Our Mission</h2>
+                <p>Our goal is to create India’s most trusted gaming platform by offering:</p>
+                <ul>
+                    <li>Simple and fun games</li>
+                    <li>Affordable entry fees</li>
+                    <li>100% fair play</li>
+                    <li>Instant login and rewards</li>
+                    <li>A smooth and secure experience</li>
+                </ul>
+                <p>We want gaming to be something everyone can enjoy — not something complicated or expensive.</p>
+            </div>
+
+            <!-- WHAT MAKES US DIFFERENT -->
+            <div class="section-box">
+                <h2>What Makes Us Different?</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div class="bg-gray-900/50 p-5 rounded-lg border border-gray-800">
+                        <h3 class="text-pink-500 font-bold text-lg mb-2">1. Only ₹1 Participation</h3>
+                        <p class="text-sm">You don’t need thousands of rupees to play. Just ₹1 is enough to join a game and win awesome rewards.</p>
+                    </div>
+
+                    <div class="bg-gray-900/50 p-5 rounded-lg border border-gray-800">
+                        <h3 class="text-pink-500 font-bold text-lg mb-2">2. No Sensitive Data</h3>
+                        <p class="text-sm">We do not ask for Aadhar, PAN, Bank details, or Card details. Just basic information for login. That’s it.</p>
+                    </div>
+
+                    <div class="bg-gray-900/50 p-5 rounded-lg border border-gray-800">
+                        <h3 class="text-pink-500 font-bold text-lg mb-2">3. Zero Data Selling</h3>
+                        <p class="text-sm">We never sell your data. Your privacy is our priority.</p>
+                    </div>
+
+                    <div class="bg-gray-900/50 p-5 rounded-lg border border-gray-800">
+                        <h3 class="text-pink-500 font-bold text-lg mb-2">4. Fair Play Guaranteed</h3>
+                        <p class="text-sm">No cheating. No bots. No fake accounts. We monitor all activity to keep the platform clean and fair.</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h3 class="text-cyan-400 font-bold text-lg mb-2">5. Rewards You Love</h3>
+                    <p>Win coins, rewards, special gifts, and more — based on the game rules.</p>
+                </div>
+            </div>
+
+            <!-- PRIME MEMBERSHIP -->
+            <div class="section-box">
+                <h2>Prime Membership</h2>
+                <p>We also offer a Prime Membership for users who want:</p>
+                <ul>
+                    <li>Special games</li>
+                    <li>Higher rewards</li>
+                    <li>Early access to new features</li>
+                </ul>
+                <p class="text-sm text-gray-400">Membership info stays private and secure.</p>
+            </div>
+
+            <!-- WHY WE STARTED -->
+            <div class="section-box">
+                <h2>Why We Started This Platform</h2>
+                <p>We noticed that most gaming platforms are:</p>
+                <ul>
+                    <li>Too expensive</li>
+                    <li>Too complicated</li>
+                    <li>Or filled with cheating</li>
+                </ul>
+                <p>So we decided to build something <strong>simple, honest, and enjoyable</strong> for everyone — especially students and casual gamers.</p>
+            </div>
+
+            <!-- OUR PROMISE -->
+            <div class="section-box border-none">
+                <h2>Our Promise to You</h2>
+                <p>We promise to always:</p>
+                <ul>
+                    <li>Keep the platform fair</li>
+                    <li>Keep your data safe</li>
+                    <li>Make games fun and simple</li>
+                    <li>Improve the platform continuously</li>
+                </ul>
+                <p class="text-cyan-400 font-bold mt-4 text-center text-lg">Your trust is the most important thing for us.</p>
+            </div>
+
+            <div class="mt-8 pt-8 border-t border-gray-700 text-center">
+                <p class="text-gray-500 text-sm">© 2024 Kishanquarks. All rights reserved.</p>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
