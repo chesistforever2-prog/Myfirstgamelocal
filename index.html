@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>World of KishanQuarks | Gaming Protocol</title>
     
+    <!-- TAILWIND CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SUPABASE JS LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -117,6 +121,11 @@
             outline: none;
             box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
         }
+        .divider-line {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            flex: 1;
+        }
 
         /* --- DASHBOARD STYLES --- */
         .dashboard-card {
@@ -149,8 +158,11 @@
                 Main Area
             </button>
         </div>
-        <!-- LOGIN BUTTON (Dynamic Text based on state) -->
-        <button id="navLoginBtn" class="border border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10 transition-colors px-6 py-2 rounded-none uppercase text-xs tracking-widest" onclick="openLoginModal()">Login</button>
+        <!-- LOGIN BUTTON -->
+        <div class="flex items-center gap-4">
+            <div id="userEmailDisplay" class="hidden text-xs text-cyan-400 font-mono"></div>
+            <button id="navLoginBtn" class="border border-cyan-500/30 text-cyan-500 hover:bg-cyan-500/10 transition-colors px-6 py-2 rounded-none uppercase text-xs tracking-widest" onclick="openLoginModal()">Login</button>
+        </div>
     </nav>
 
     <!-- === SECTION 1: LANDING PAGE === -->
@@ -227,12 +239,13 @@
             <div class="absolute inset-0 bg-gradient-to-b from-pink-500/10 to-transparent pointer-events-none"></div>
             
             <h2 class="font-anime text-4xl mb-2 text-white">Secure Uplink</h2>
-            <p class="text-gray-400 mb-8">Final step to secure your callsign and unlock the Main Area.</p>
+            <p class="text-gray-400 mb-8">Pay ₹1 to Unlock Main Features. This verifies your account.</p>
             
             <div class="bg-gray-900/50 p-6 rounded-lg mb-8 border border-gray-700 text-left flex items-center justify-between">
                 <div>
                     <div class="text-sm text-gray-400 uppercase tracking-widest">Item</div>
                     <div class="text-xl font-bold text-cyan-400">Early Access Pass</div>
+                    <div class="text-xs text-gray-500 mt-1" id="paymentUserEmail"></div>
                 </div>
                 <div class="text-right">
                     <div class="text-sm text-gray-400 uppercase tracking-widest">Total</div>
@@ -285,67 +298,66 @@
         </div>
     </main>
 
-    <!-- === MODAL 1: LOGIN / SIGNUP === -->
+    <!-- === SECTION 4: PAYMENT SUCCESS PAGE (Hidden by default) === -->
+    <!-- PAYMENT SUCCESS PAGE -->
+    <main id="successSection" class="hidden z-20 fixed inset-0 flex items-center justify-center bg-black">
+        <div class="text-center">
+            <!-- Celebration Icon -->
+            <div class="text-6xl text-green-400 mb-6 animate-bounce">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            
+            <!-- Success Text -->
+            <h1 class="font-anime text-4xl md:text-5xl text-white mb-2 tracking-wide">
+                Payment Successful
+            </h1>
+            <p class="text-gray-400 text-lg mb-8">
+                Welcome aboard, <span id="successUserEmail" class="text-cyan-400 font-bold"></span>
+            </p>
+            
+            <!-- Loading Spinner -->
+            <div class="flex flex-col items-center justify-center gap-3">
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl text-pink-500"></i>
+                <p class="text-xs text-gray-500 uppercase tracking-widest">Initialising Main Protocol...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- === MODAL 1: LOGIN / SIGNUP CHOICE === -->
     <div id="loginModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
         <div class="modal-content w-full max-w-md p-8 rounded-xl relative transform scale-95 transition-transform duration-300">
             <button onclick="closeModals()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             
-            <h2 class="font-anime text-3xl mb-6 text-center text-white">Identity Check</h2>
+            <h2 class="font-anime text-2xl mb-6 text-center text-white">Sign in or Create an account</h2>
             
             <div class="space-y-4">
-                <button onclick="openPasswordModal()" class="w-full bg-white text-black font-bold py-3 px-4 rounded flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors">
+                <!-- Option A: Google OAuth -->
+                <button onclick="handleGoogleSignIn()" class="w-full bg-white text-black font-bold py-3 px-4 rounded flex items-center justify-center gap-3 hover:bg-gray-200 transition-colors">
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-6 h-6" alt="Google">
-                    Sign up with Google
+                    Sign in with Google
                 </button>
+                <p class="text-center text-xs text-gray-500">(Recommended)</p>
                 
-                <div class="flex items-center gap-4 my-4">
-                    <div class="h-px bg-gray-700 flex-1"></div>
-                    <span class="text-gray-500 text-xs uppercase">Or Login</span>
-                    <div class="h-px bg-gray-700 flex-1"></div>
+                <div class="flex items-center gap-4 my-2">
+                    <div class="divider-line"></div>
+                    <span class="text-gray-500 text-xs uppercase">OR</span>
+                    <div class="divider-line"></div>
                 </div>
 
-                <input type="email" placeholder="Email Address" class="w-full p-3 rounded input-field">
-                <input type="password" placeholder="Password" class="w-full p-3 rounded input-field">
-                <button class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded uppercase tracking-widest transition-colors">
-                    Login
+                <!-- Option B: Email/Password (Toggle) -->
+                <button onclick="toggleEmailForm()" class="w-full border border-gray-600 text-gray-300 font-bold py-3 px-4 rounded hover:bg-gray-800 transition-colors">
+                    Sign in with Email
                 </button>
-            </div>
-        </div>
-    </div>
 
-    <!-- === MODAL 2: SET PASSWORD (Step 2 of Sign Up) === -->
-    <div id="passwordModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
-        <div class="modal-content w-full max-w-md p-8 rounded-xl relative transform scale-95 transition-transform duration-300">
-            <button onclick="closeModals()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            
-            <h2 class="font-anime text-2xl mb-2 text-center text-white">Secure Account</h2>
-            <p class="text-center text-gray-400 text-sm mb-6">Link a password to your Google Identity.</p>
-            
-            <div class="space-y-4">
-                <div class="text-left">
-                    <label class="text-xs text-cyan-400 uppercase font-bold ml-1">New Password</label>
-                    <input type="password" id="newPass" class="w-full p-3 mt-1 rounded input-field border-cyan-500/50">
+                <!-- Hidden Email Form -->
+                <div id="emailLoginForm" class="hidden space-y-3 pt-2 border-t border-gray-800 mt-2">
+                    <input type="email" id="loginEmail" placeholder="Email Address" class="w-full p-3 rounded input-field">
+                    <input type="password" id="loginPass" placeholder="Password" class="w-full p-3 rounded input-field">
+                    <button onclick="handleEmailLogin()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded uppercase tracking-widest transition-colors">
+                        Continue
+                    </button>
                 </div>
-                <div class="text-left">
-                    <label class="text-xs text-cyan-400 uppercase font-bold ml-1">Confirm Password</label>
-                    <input type="password" id="confirmPass" class="w-full p-3 mt-1 rounded input-field border-cyan-500/50">
-                </div>
-                <button onclick="submitSignUp()" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 rounded uppercase tracking-widest transition-colors mt-4">
-                    Create Account & Pay
-                </button>
             </div>
-        </div>
-    </div>
-
-    <!-- === MODAL 3: SUCCESS === -->
-    <div id="successModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
-        <div class="modal-content w-full max-w-sm p-8 rounded-xl text-center border-green-500">
-            <div class="text-6xl text-green-400 mb-4 animate-bounce">✓</div>
-            <h2 class="font-anime text-3xl mb-2 text-white">Access Granted</h2>
-            <p class="text-gray-300 mb-6">Payment successful. Welcome to the inner circle.</p>
-            <button onclick="enterMainArea()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded uppercase tracking-widest">
-                Enter Main Area
-            </button>
         </div>
     </div>
 
@@ -353,68 +365,330 @@
     <div id="lockedToast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-red-900/90 border border-red-500 text-white px-6 py-3 rounded shadow-lg translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3">
         <span class="text-xl">🔒</span>
         <div>
-            <div class="font-bold text-sm uppercase">Access Denied</div>
-            <div class="text-xs text-red-200">Please Sign Up and Pay to unlock Main.</div>
+            <div class="font-bold text-sm uppercase">Locked</div>
+            <div class="text-xs text-red-200">Sign up and pay ₹1 to access Main.</div>
         </div>
     </div>
 
     <script>
         /**
          * ------------------------------------------------------------------
-         * CONFIGURATION ZONE
+         * CONFIGURATION ZONE (REQUIRED)
          * ------------------------------------------------------------------
+         * 1. Go to your Supabase Dashboard -> Settings -> API
+         * 2. Copy the "URL" and "anon" / "public" key.
+         * 3. Paste them below.
          */
-        const PAYMENT_LINK = ""; // Paste real link here if available.
-        // If empty, the system will simulate a successful payment for demonstration.
+        const SUPABASE_URL = "YOUR_SUPABASE_URL_HERE"; 
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
+
+        const PAYMENT_LINK = ""; // Paste real payment link here (e.g. Razorpay/Stripe)
+
+        // Initialize Supabase Client
+        // Note: We check if variables are set to avoid errors if you haven't pasted them yet.
+        let supabase;
+        let demoMode = false;
+
+        if (SUPABASE_URL && SUPABASE_URL.includes("https") && !SUPABASE_URL.includes("YOUR_SUPABASE")) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } else {
+            console.warn("Supabase not configured correctly. Falling back to DEMO MODE (Local Storage).");
+            demoMode = true;
+        }
 
         /**
          * ------------------------------------------------------------------
          * STATE MANAGEMENT
          * ------------------------------------------------------------------
          */
-        const state = {
-            isLoggedIn: localStorage.getItem('kq_isLoggedIn') === 'true',
-            hasPaid: localStorage.getItem('kq_hasPaid') === 'true'
-        };
+        let currentUser = null; // Stores Supabase user object or LocalStorage object
+        let isPaidUser = false; // Stores payment status
 
         const els = {
             landing: document.getElementById('landingSection'),
             payment: document.getElementById('paymentSection'),
             dashboard: document.getElementById('dashboardSection'),
+            successSection: document.getElementById('successSection'),
             loginModal: document.getElementById('loginModal'),
-            passModal: document.getElementById('passwordModal'),
-            successModal: document.getElementById('successModal'),
             navMainBtn: document.getElementById('navMainBtn'),
             navLoginBtn: document.getElementById('navLoginBtn'),
+            userEmailDisplay: document.getElementById('userEmailDisplay'),
+            emailLoginForm: document.getElementById('emailLoginForm'),
+            paymentUserEmail: document.getElementById('paymentUserEmail'),
+            successUserEmail: document.getElementById('successUserEmail'),
             lockedToast: document.getElementById('lockedToast')
         };
 
-        // Initialize UI based on saved state
-        function init() {
-            if (state.hasPaid && state.isLoggedIn) {
-                unlockMainBtn();
-                els.navLoginBtn.textContent = "Logout";
-                els.navLoginBtn.onclick = logout;
+        async function init() {
+            // Check for Payment Success Callback in URL (?payment=success)
+            const urlParams = new URLSearchParams(window.location.search);
+            const isPaymentSuccess = urlParams.get('payment') === 'success';
+
+            if (demoMode) {
+                // --- DEMO MODE INIT ---
+                const storedUser = localStorage.getItem('kq_demo_user');
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                    // Check local storage payment status
+                    isPaidUser = currentUser.is_paid === true;
+                    
+                    if (isPaymentSuccess) {
+                        await handlePaymentSuccessCallback();
+                    } else {
+                        updateUI();
+                    }
+                } else {
+                    updateUI();
+                }
             } else {
-                els.navLoginBtn.textContent = "Login";
-                els.navLoginBtn.onclick = openLoginModal;
+                // --- REAL SUPABASE INIT ---
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (session) {
+                    currentUser = session.user;
+                    // Check if we need to update payment status based on URL
+                    if (isPaymentSuccess) {
+                        await handlePaymentSuccessCallback();
+                    } else {
+                        // Just check existing status
+                        await checkPaymentStatus();
+                        updateUI();
+                    }
+                } else {
+                    updateUI();
+                }
+
+                // Listen for Auth Changes (Login/Logout)
+                supabase.auth.onAuthStateChange(async (event, session) => {
+                    if (event === 'SIGNED_IN' && session) {
+                        currentUser = session.user;
+                        await checkPaymentStatus();
+                        updateUI();
+                        
+                        // If logged in but not paid, redirect to payment
+                        if (!isPaidUser) {
+                            showSection('payment');
+                        }
+                        closeModals();
+                    } else if (event === 'SIGNED_OUT') {
+                        currentUser = null;
+                        isPaidUser = false;
+                        updateUI();
+                        showSection('landing');
+                    }
+                });
             }
         }
 
-        /* --- NAVIGATION LOGIC --- */
-        function showSection(sectionName) {
+        /* --- AUTH LOGIC --- */
+
+        async function handleGoogleSignIn() {
+            if (demoMode) {
+                // Simulate Login
+                const btn = event.currentTarget;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
+                
+                setTimeout(() => {
+                    const mockEmail = "demo_user_" + Math.floor(Math.random() * 1000) + "@gmail.com";
+                    // Create or Get User
+                    const existing = localStorage.getItem('kq_demo_user');
+                    if(existing) {
+                        currentUser = JSON.parse(existing);
+                    } else {
+                        currentUser = { email: mockEmail, is_paid: false };
+                        localStorage.setItem('kq_demo_user', JSON.stringify(currentUser));
+                    }
+                    
+                    isPaidUser = currentUser.is_paid === true;
+                    updateUI();
+                    closeModals();
+                    
+                    if(!isPaidUser) showSection('payment');
+                    else showSection('dashboard');
+                    
+                    btn.innerHTML = originalText;
+                }, 1500);
+                return;
+            }
+
+            // Real Supabase Login
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    // Redirect back to this same page
+                    redirectTo: window.location.href 
+                }
+            });
+
+            if (error) {
+                alert("Login Error: " + error.message);
+            }
+        }
+
+        async function handleEmailLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPass').value;
+            if (!email || !pass) return alert("Enter email and password");
+
+            if(demoMode) {
+                 // Simulate Email Login
+                currentUser = { email: email, is_paid: false };
+                // Check if existing user in localStorage matches
+                const existing = localStorage.getItem('kq_demo_user');
+                if(existing) {
+                     const parsed = JSON.parse(existing);
+                     if(parsed.email === email) currentUser = parsed;
+                }
+                
+                localStorage.setItem('kq_demo_user', JSON.stringify(currentUser));
+                isPaidUser = currentUser.is_paid === true;
+                
+                updateUI();
+                closeModals();
+                if(!isPaidUser) showSection('payment');
+                else showSection('dashboard');
+                return;
+            }
+
+            // Real Supabase Email Login
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: pass
+            });
+
+            if (error) alert(error.message);
+        }
+        
+        function toggleEmailForm() {
+            els.emailLoginForm.classList.toggle('hidden');
+        }
+
+        function logout() {
+            if (demoMode) {
+                localStorage.removeItem('kq_demo_user');
+                currentUser = null;
+                isPaidUser = false;
+                window.location.reload();
+            } else {
+                if(supabase) supabase.auth.signOut();
+            }
+        }
+
+        /* --- PAYMENT LOGIC --- */
+
+        async function checkPaymentStatus() {
+            if (!currentUser) return;
+            
+            if (demoMode) {
+                 // already loaded in init
+                 return;
+            }
+
+            // We store "is_paid" in user_metadata for this simple implementation.
+            const metadata = currentUser.user_metadata || {};
+            isPaidUser = metadata.is_paid === true;
+        }
+
+        // Triggered when user clicks "Pay" button
+        document.getElementById('completePaymentBtn').addEventListener('click', async () => {
+            if(!currentUser) return alert("Please log in first.");
+
+            els.paymentUserEmail.textContent = "Account: " + currentUser.email;
+
+            if (PAYMENT_LINK && PAYMENT_LINK !== "") {
+                window.location.href = PAYMENT_LINK;
+            } else {
+                // DEMO MODE / SIMULATION: Update status immediately
+                await updateSupabasePaymentStatus(true);
+                handlePaymentSuccessCallback();
+            }
+        });
+
+        // Triggered after successful payment
+        async function handlePaymentSuccessCallback() {
+            // 1. Update Persistence (Supabase or LocalStorage)
+            await updateSupabasePaymentStatus(true);
+            
+            // 2. Show Success Screen
+            showSection('success');
+            if(els.successUserEmail) {
+                 els.successUserEmail.textContent = currentUser ? currentUser.email : 'Pilot';
+            }
+
+            // 3. Wait & Redirect
+            setTimeout(() => {
+                const url = new URL(window.location);
+                if (url.searchParams.get('payment') === 'success') {
+                    url.searchParams.delete('payment');
+                    window.history.replaceState({}, document.title, url);
+                }
+                updateUI();
+                showSection('dashboard');
+            }, 2000);
+        }
+
+        // Updates user metadata
+        async function updateSupabasePaymentStatus(status) {
+            isPaidUser = status;
+
+            if (demoMode) {
+                if(currentUser) {
+                    currentUser.is_paid = status;
+                    localStorage.setItem('kq_demo_user', JSON.stringify(currentUser));
+                }
+                return;
+            }
+
+            if(!supabase || !currentUser) return;
+            
+            const { data, error } = await supabase.auth.updateUser({
+                data: { is_paid: status }
+            });
+            
+            if (error) console.error("Error updating payment status:", error);
+        }
+
+        /* --- UI MANAGEMENT --- */
+
+        function updateUI() {
+            // Nav Button State
+            if (currentUser) {
+                els.navLoginBtn.textContent = "Logout";
+                els.navLoginBtn.onclick = logout;
+                els.userEmailDisplay.textContent = currentUser.email;
+                els.userEmailDisplay.classList.remove('hidden');
+
+                if (isPaidUser) unlockMainBtn();
+                else lockMainBtn();
+            } else {
+                els.navLoginBtn.textContent = "Login";
+                els.navLoginBtn.onclick = openLoginModal;
+                els.userEmailDisplay.classList.add('hidden');
+                lockMainBtn();
+            }
+        }
+
+        function showSection(name) {
             els.landing.classList.add('hidden');
             els.payment.classList.add('hidden');
             els.dashboard.classList.add('hidden');
+            els.successSection.classList.add('hidden');
 
-            if (sectionName === 'landing') els.landing.classList.remove('hidden');
-            if (sectionName === 'payment') els.payment.classList.remove('hidden');
-            if (sectionName === 'dashboard') els.dashboard.classList.remove('hidden');
+            if (name === 'landing') els.landing.classList.remove('hidden');
+            if (name === 'payment') {
+                els.payment.classList.remove('hidden');
+                els.paymentUserEmail.textContent = currentUser ? currentUser.email : '';
+            }
+            if (name === 'dashboard') els.dashboard.classList.remove('hidden');
+            if (name === 'success') els.successSection.classList.remove('hidden');
         }
 
         function handleMainAccess() {
-            if (state.hasPaid && state.isLoggedIn) {
+            if (currentUser && isPaidUser) {
                 showSection('dashboard');
+            } else if (currentUser && !isPaidUser) {
+                showSection('payment');
             } else {
                 showLockedAlert();
             }
@@ -423,104 +697,24 @@
         function unlockMainBtn() {
             els.navMainBtn.classList.remove('btn-locked', 'text-gray-400');
             els.navMainBtn.classList.add('text-cyan-400', 'border-b-2', 'border-cyan-400');
-            // Remove the lock icon pseudo-element style by adding a class that disables it?
-            // Actually, simplest is to just remove the btn-locked class which has the ::after content.
         }
 
-        /* --- MODAL LOGIC --- */
+        function lockMainBtn() {
+            els.navMainBtn.classList.add('btn-locked', 'text-gray-400');
+            els.navMainBtn.classList.remove('text-cyan-400', 'border-b-2', 'border-cyan-400');
+        }
+
+        /* --- MODALS & TOASTS --- */
         function openLoginModal() {
             els.loginModal.classList.remove('hidden');
-            setTimeout(() => {
-                els.loginModal.classList.remove('opacity-0');
-                els.loginModal.children[0].classList.remove('scale-95');
-                els.loginModal.children[0].classList.add('scale-100');
-            }, 10);
+            setTimeout(() => { els.loginModal.classList.remove('opacity-0'); els.loginModal.children[0].classList.add('scale-100'); }, 10);
         }
-
-        function openPasswordModal() {
-            closeModals(); // Close login first
-            setTimeout(() => {
-                els.passModal.classList.remove('hidden');
-                setTimeout(() => {
-                    els.passModal.classList.remove('opacity-0');
-                    els.passModal.children[0].classList.remove('scale-95');
-                    els.passModal.children[0].classList.add('scale-100');
-                }, 10);
-            }, 300);
-        }
-
         function closeModals() {
-            // Fade out animation
-            [els.loginModal, els.passModal].forEach(modal => {
-                modal.classList.add('opacity-0');
-                if(modal.children[0]) {
-                    modal.children[0].classList.remove('scale-100');
-                    modal.children[0].classList.add('scale-95');
-                }
-            });
-            setTimeout(() => {
-                els.loginModal.classList.add('hidden');
-                els.passModal.classList.add('hidden');
-            }, 300);
+            els.loginModal.classList.add('opacity-0');
+            if(els.loginModal.children[0]) els.loginModal.children[0].classList.remove('scale-100');
+            setTimeout(() => { els.loginModal.classList.add('hidden'); }, 300);
         }
 
-        /* --- AUTH & PAYMENT FLOW --- */
-        
-        function submitSignUp() {
-            const p1 = document.getElementById('newPass').value;
-            const p2 = document.getElementById('confirmPass').value;
-
-            if (!p1 || !p2) { alert("Please set a password."); return; }
-            if (p1 !== p2) { alert("Passwords do not match."); return; }
-
-            // 1. Create Account (Simulated)
-            state.isLoggedIn = true;
-            localStorage.setItem('kq_isLoggedIn', 'true');
-            
-            // 2. Close Modal & Redirect to Payment
-            closeModals();
-            showSection('payment');
-        }
-
-        // Add event listener for payment button
-        document.getElementById('completePaymentBtn').addEventListener('click', () => {
-            if (PAYMENT_LINK && PAYMENT_LINK !== "") {
-                // If real link exists, go there
-                window.location.href = PAYMENT_LINK;
-                // Note: Logic for return URL handling would be needed here for real implementation
-            } else {
-                // SIMULATE PAYMENT SUCCESS
-                simulatePaymentSuccess();
-            }
-        });
-
-        function simulatePaymentSuccess() {
-            const btn = document.getElementById('completePaymentBtn');
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
-            
-            setTimeout(() => {
-                state.hasPaid = true;
-                localStorage.setItem('kq_hasPaid', 'true');
-                els.successModal.classList.remove('hidden');
-            }, 2000);
-        }
-
-        function enterMainArea() {
-            els.successModal.classList.add('hidden');
-            init(); // Refresh nav state
-            showSection('dashboard'); // Show dashboard
-        }
-
-        function logout() {
-            localStorage.removeItem('kq_isLoggedIn');
-            localStorage.removeItem('kq_hasPaid'); // Optional: keep payment history? usually logout clears auth.
-            // For this demo, let's reset everything so they can test flow again
-            state.isLoggedIn = false;
-            state.hasPaid = false;
-            location.reload();
-        }
-
-        /* --- UTILS --- */
         let toastTimeout;
         window.showLockedAlert = function() {
             clearTimeout(toastTimeout);
@@ -535,7 +729,7 @@
             }, 2000);
         }
 
-        // Initialize on load
+        // START
         init();
 
     </script>
