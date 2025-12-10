@@ -227,9 +227,17 @@
                         <div class="text-3xl font-anime text-white">₹1.00</div>
                     </div>
                 </div>
-                <button id="completePaymentBtn" class="w-full btn-pay py-4 text-xl font-black uppercase tracking-widest rounded">
-                    Pay ₹1 & Activate
-                </button>
+                
+                <!-- PAYU BUTTON INTEGRATION -->
+                <div class="mt-6 flex justify-center">
+                    <a id="payuLink" style="width: 100%; max-width: 300px; background-color: #1CA953; text-align: center; font-weight: 800; padding: 15px 0px; color: white; font-size: 16px; display: inline-block; text-decoration: none; border-radius: 5px; text-transform: uppercase; letter-spacing: 1px; transition: transform 0.2s;" 
+                       href='https://u.payu.in/kIGbNDFGqWge' 
+                       onmouseover="this.style.transform='scale(1.05)'" 
+                       onmouseout="this.style.transform='scale(1)'">
+                       Pay Now
+                    </a>
+                </div>
+                
             </div>
         </main>
 
@@ -522,23 +530,33 @@
             els.paymentUserEmail.textContent = currentUser ? currentUser.email : '';
         }
 
-        // Triggered by "Pay" button
-        document.getElementById('completePaymentBtn').addEventListener('click', async () => {
-            if(!currentUser) return;
-
-            // 1. Update Database
-            const { error } = await supabase
-                .from('profiles')
-                .update({ is_paid: true })
-                .eq('id', currentUser.id);
-
-            if (error) {
-                alert("Payment Error: " + error.message);
-            } else {
-                // 2. Simulate Redirect to Success (In real life this happens via gateway)
-                handlePaymentSuccessCallback();
-            }
-        });
+        // Hook up the PayU Button Logic
+        const payuLink = document.getElementById('payuLink');
+        if(payuLink) {
+            payuLink.addEventListener('click', async (e) => {
+                if(!currentUser) {
+                    e.preventDefault();
+                    alert("Please log in first.");
+                    return;
+                }
+                
+                // IMPORTANT: We optimistically update the DB status to 'true' 
+                // BEFORE the redirect so that when they come back, they are allowed in.
+                // In a true production app with a backend, this would be done via a Webhook.
+                
+                await supabase
+                    .from('profiles')
+                    .update({ is_paid: true })
+                    .eq('id', currentUser.id);
+                    
+                // Allow the link to proceed to PayU
+                // Browser follows the href automatically after this async check returns if we don't preventDefault
+                // But since we are async, we might need to manually trigger.
+                // Actually, the click event will propagate. To be safe with async:
+                e.preventDefault();
+                window.location.href = payuLink.href;
+            });
+        }
 
         function handlePaymentSuccessCallback() {
             isPaidUser = true;
