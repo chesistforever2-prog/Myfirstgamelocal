@@ -231,7 +231,7 @@
                 <!-- PAYU BUTTON INTEGRATION -->
                 <div class="mt-6 flex justify-center">
                     <a id="payuLink" style="width: 100%; max-width: 300px; background-color: #1CA953; text-align: center; font-weight: 800; padding: 15px 0px; color: white; font-size: 16px; display: inline-block; text-decoration: none; border-radius: 5px; text-transform: uppercase; letter-spacing: 1px; transition: transform 0.2s;" 
-                       href='https://u.payu.in/kIGbNDFGqWge' 
+                       href='PASTE_YOUR_NEW_PAYU_LINK_HERE' 
                        onmouseover="this.style.transform='scale(1.05)'" 
                        onmouseout="this.style.transform='scale(1)'">
                        Pay Now
@@ -290,9 +290,10 @@
     <footer class="w-full py-8 border-t border-gray-900 bg-black/80 backdrop-blur-sm relative z-10 mt-auto">
         <div class="container mx-auto px-4 text-center">
             <p class="text-gray-600 text-xs mb-3 uppercase tracking-widest">© 2024 Kishanquarks. All rights reserved.</p>
-            <div class="flex justify-center gap-6">
+            <div class="flex flex-wrap justify-center gap-4 md:gap-6">
                 <a href="privacy.html" class="text-gray-500 hover:text-cyan-400 text-xs font-bold uppercase tracking-wider transition-colors">Privacy Policy</a>
                 <a href="terms.html" class="text-gray-500 hover:text-cyan-400 text-xs font-bold uppercase tracking-wider transition-colors">Terms of Service</a>
+                <a href="refund.html" class="text-gray-500 hover:text-cyan-400 text-xs font-bold uppercase tracking-wider transition-colors">Refund Policy</a>
                 <a href="about.html" class="text-gray-500 hover:text-cyan-400 text-xs font-bold uppercase tracking-wider transition-colors">About us</a>
             </div>
         </div>
@@ -534,27 +535,38 @@
         const payuLink = document.getElementById('payuLink');
         if(payuLink) {
             payuLink.addEventListener('click', async (e) => {
+                // 1. Prevent default behavior immediately so we can handle logic
+                e.preventDefault();
+
+                // 2. Check if user is logged in
                 if(!currentUser) {
-                    e.preventDefault();
                     alert("Please log in first.");
                     return;
                 }
                 
-                // IMPORTANT: We optimistically update the DB status to 'true' 
-                // BEFORE the redirect so that when they come back, they are allowed in.
-                // In a true production app with a backend, this would be done via a Webhook.
-                
-                await supabase
+                // 3. IMPORTANT: Update the database to 'paid' optimistically
+                // In a real scenario, this would be done by the payment gateway via webhook callback
+                // but for this flow, we set it before sending them off.
+                const { error } = await supabase
                     .from('profiles')
                     .update({ is_paid: true })
                     .eq('id', currentUser.id);
-                    
-                // Allow the link to proceed to PayU
-                // Browser follows the href automatically after this async check returns if we don't preventDefault
-                // But since we are async, we might need to manually trigger.
-                // Actually, the click event will propagate. To be safe with async:
-                e.preventDefault();
-                window.location.href = payuLink.href;
+
+                if (error) {
+                    console.error("DB Error updating payment:", error);
+                    // We continue anyway so they can try to pay, or handle error
+                }
+
+                // 4. Check if the link is still the placeholder or empty
+                const href = payuLink.getAttribute('href');
+                if (href === 'PASTE_YOUR_NEW_PAYU_LINK_HERE' || href === '#' || href === '') {
+                    // TEST MODE: If no valid link, simulate success immediately
+                    alert("⚠️ Test Mode: PayU Link not configured.\n\nSimulating successful payment...");
+                    handlePaymentSuccessCallback();
+                } else {
+                    // REAL MODE: Redirect the user to the actual PayU page
+                    window.location.href = href;
+                }
             });
         }
 
