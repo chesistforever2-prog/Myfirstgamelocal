@@ -21,6 +21,7 @@
         .font-google { font-family: 'Inter', sans-serif; }
         .font-tech { font-family: 'Rajdhani', sans-serif; }
         
+        /* ... existing grid styles ... */
         .bg-grid {
             background-image: linear-gradient(rgba(255, 0, 85, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 85, 0.1) 1px, transparent 1px);
             background-size: 40px 40px; position: absolute; width: 100%; height: 100%; z-index: -1;
@@ -28,14 +29,44 @@
             animation: grid-move 20s linear infinite;
         }
         @keyframes grid-move { 0% { transform: perspective(500px) rotateX(60deg) translateY(0) scale(2); } 100% { transform: perspective(500px) rotateX(60deg) translateY(40px) scale(2); } }
+
+        /* --- UPDATED DYNAMIC TITLE ANIMATION (SCATTER EFFECT) --- */
         .dynamic-title {
-            background: linear-gradient(to right, #ff0055 0%, #ffffff 50%, #00ffff 100%); background-size: 200% auto;
-            color: #000; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: shine-flow 3s linear infinite, float-pulse 5s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(255, 0, 85, 0.4)); position: relative; z-index: 10;
+            position: relative; 
+            z-index: 10;
+            cursor: pointer; /* Indicates interactivity */
         }
+
+        /* Wrapper for words to keep layout intact */
+        .title-word {
+            display: inline-block;
+            white-space: nowrap;
+            margin-right: 0.3em; /* Space between words */
+        }
+
+        /* Individual Character Styling */
+        .char-scatter {
+            display: inline-block;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease, text-shadow 0.3s ease;
+            background: linear-gradient(to right, #ff0055 0%, #ffffff 50%, #00ffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine-flow 3s linear infinite;
+        }
+
+        /* The Scatter State (Hover/Touch) */
+        .dynamic-title:hover .char-scatter, 
+        .dynamic-title.active .char-scatter {
+            /* Use CSS variables set by JS for random direction */
+            transform: translate(var(--tx), var(--ty)) rotate(var(--r)) scale(1.1);
+            -webkit-text-fill-color: #00ffff; /* Turn Cyan */
+            text-shadow: 0 0 10px #ff0055, 2px 2px 0px rgba(255,0,85,0.5); /* Glitch shadow */
+        }
+
         @keyframes shine-flow { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
-        @keyframes float-pulse { 0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 20px rgba(255, 0, 85, 0.4)); } 50% { transform: translateY(-5px) scale(1.02); filter: drop-shadow(0 0 35px rgba(0, 255, 255, 0.6)); } }
+        
+        /* ... existing button styles ... */
         .btn-locked { position: relative; opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
         .btn-locked::after { content: "\f023"; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: -10px; right: -10px; font-size: 12px; color: #fff; }
         .btn-pay { background: linear-gradient(45deg, #ff0055, #ff00aa); box-shadow: 0 0 20px rgba(255, 0, 85, 0.6); transition: all 0.3s; animation: pulse 2s infinite; }
@@ -365,9 +396,54 @@
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         } catch (e) { console.error("Supabase Init Error:", e); }
 
+        // --- TITLE ANIMATION SETUP ---
+        function setupScatterAnimation() {
+            const titleElement = document.querySelector('.dynamic-title');
+            if (!titleElement) return;
+
+            // Get the original HTML structure (handling the <br>)
+            const originalContent = titleElement.innerHTML;
+            
+            // Helper to wrap characters
+            const wrapCharacters = (text) => {
+                // Split text into words first to handle spacing
+                return text.split(' ').map(word => {
+                    const chars = word.split('').map(char => {
+                        // Generate random scatter values
+                        const tx = (Math.random() - 0.5) * 150; // Translate X (-75px to 75px)
+                        const ty = (Math.random() - 0.5) * 150; // Translate Y
+                        const rot = (Math.random() - 0.5) * 90; // Rotate (-45deg to 45deg)
+                        
+                        return `<span class="char-scatter" style="--tx:${tx}px; --ty:${ty}px; --r:${rot}deg">${char}</span>`;
+                    }).join('');
+                    return `<span class="title-word">${chars}</span>`;
+                }).join(' '); // Re-join words with standard space
+            };
+
+            // Process the nodes (splitting by <br>)
+            const nodes = originalContent.split('<br>');
+            const formattedNodes = nodes.map(node => wrapCharacters(node.trim()));
+            
+            // Reassemble
+            titleElement.innerHTML = formattedNodes.join('<br>');
+
+            // Add Touch Events for Mobile (Finger press)
+            titleElement.addEventListener('touchstart', (e) => {
+                // Prevent default to stop scrolling/zooming while interacting with title
+                // e.preventDefault(); 
+                titleElement.classList.add('active');
+            });
+            
+            titleElement.addEventListener('touchend', () => {
+                titleElement.classList.remove('active');
+            });
+        }
+
         // --- STATE ---
         let currentUser = null;
         let isPaidUser = false;
+        
+        // ... (rest of the existing state variables) ...
 
         const els = {
             // Sections
@@ -393,8 +469,12 @@
 
         // --- INIT ---
         async function init() {
-            if (!supabase) return;
+            // Run the animation setup
+            setupScatterAnimation();
 
+            if (!supabase) return;
+            // ... (rest of the existing init logic) ...
+            
             // Check if we are returning from a Payment Success Redirect
             const urlParams = new URLSearchParams(window.location.search);
             const isPaymentSuccess = urlParams.get('payment') === 'success';
@@ -431,6 +511,7 @@
         }
 
         // --- CORE LOGIC (DB Checks) ---
+        // ... (Keep the rest of the existing script logic exactly the same) ...
 
         // Check if the current user has paid
         async function checkDatabaseStatus() {
@@ -455,7 +536,6 @@
                 }
             } else if (error) {
                 // IMPORTANT: If profile missing, create it now (fallback)
-                // This happens if SQL trigger failed or user created before trigger existed
                 if(error.code === 'PGRST116') {
                     console.log("Profile missing, creating now...");
                     await supabase.from('profiles').insert([{ id: currentUser.id, email: currentUser.email, is_paid: false }]);
@@ -531,7 +611,7 @@
             els.paymentUserEmail.textContent = currentUser ? currentUser.email : '';
         }
 
-        // Hook up the PayU Button Logic
+        // Triggered by "Pay" button
         const payuLink = document.getElementById('payuLink');
         if(payuLink) {
             payuLink.addEventListener('click', async (e) => {
@@ -545,8 +625,6 @@
                 }
                 
                 // 3. IMPORTANT: Update the database to 'paid' optimistically
-                // In a real scenario, this would be done by the payment gateway via webhook callback
-                // but for this flow, we set it before sending them off.
                 const { error } = await supabase
                     .from('profiles')
                     .update({ is_paid: true })
@@ -554,7 +632,6 @@
 
                 if (error) {
                     console.error("DB Error updating payment:", error);
-                    // We continue anyway so they can try to pay, or handle error
                 }
 
                 // 4. Check if the link is still the placeholder or empty
@@ -569,6 +646,14 @@
                 }
             });
         }
+        
+        // This is kept for reference if you switch back to the custom button logic
+        document.getElementById('completePaymentBtn')?.addEventListener('click', async () => {
+            if(!currentUser) return;
+            const { error } = await supabase.from('profiles').update({ is_paid: true }).eq('id', currentUser.id);
+            if (error) alert("Payment Error: " + error.message);
+            else handlePaymentSuccessCallback();
+        });
 
         function handlePaymentSuccessCallback() {
             isPaidUser = true;
@@ -578,7 +663,6 @@
             }
 
             setTimeout(() => {
-                // Remove ?payment=success from URL if present
                 const url = new URL(window.location);
                 if (url.searchParams.get('payment') === 'success') {
                     url.searchParams.delete('payment');
